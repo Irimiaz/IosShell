@@ -1,6 +1,6 @@
 # IosShell
-All the basic functionalities for an IOS app
 
-This is the first commit
+Expo app. The entry point is `App.tsx`.
 
-This is the second commit 
+- `npm start` — start the Expo dev server
+- `npm run ios` / `npm run android` — open on a simulator or emulator
