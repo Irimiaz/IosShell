@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { NavigationState } from '@react-navigation/native';
 
+import { requireBiometry } from '../security/deviceSecurity';
 import { navigationRef } from './navigationRef';
 import {
   type FlowName,
@@ -49,6 +50,21 @@ type StackNavigation = {
   canGoBack: () => boolean;
 };
 
+// Optional security for a navigation action. Leave it out for a plain move.
+//   { secure: true } – ask for Face ID / Touch ID (or the PIN when those are not
+//                      set up) first. If the check fails or is cancelled, the
+//                      move does not happen.
+export type NavOptions = { secure?: boolean };
+
+// Runs `move`, after the biometric check when the call asked for it.
+async function guarded(options: NavOptions | undefined, move: () => void) {
+  if (options?.secure !== true) {
+    move();
+    return;
+  }
+  await requireBiometry(move, () => {});
+}
+
 // Navigation actions. They work from anywhere in the app, including layouts
 // that sit outside the screen stack.
 export function useNavigator() {
@@ -56,17 +72,27 @@ export function useNavigator() {
 
   return {
     // Open a screen inside any flow, passing data to it.
-    toScreen: <S extends ScreenName>(screen: S, ...[data]: ScreenArgs<S>) => {
-      navigation.navigate(screen, data);
-    },
+    // Optional last argument: { secure: true } to require Face ID / Touch ID.
+    toScreen: <S extends ScreenName>(
+      screen: S,
+      ...[data, options]: [...ScreenArgs<S>, NavOptions?]
+    ) =>
+      guarded(options, () => {
+        navigation.navigate(screen, data);
+      }),
 
     // Enter a flow: replaces the stack and opens that flow's initial screen.
-    toFlow: <F extends FlowName>(flow: F, ...[data]: FlowArgs<F>) => {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: initialScreenOf(flow), params: data }],
-      });
-    },
+    // Optional last argument: { secure: true } to require Face ID / Touch ID.
+    toFlow: <F extends FlowName>(
+      flow: F,
+      ...[data, options]: [...FlowArgs<F>, NavOptions?]
+    ) =>
+      guarded(options, () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: initialScreenOf(flow), params: data }],
+        });
+      }),
 
     back: () => {
       navigation.goBack();
