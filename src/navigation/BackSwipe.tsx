@@ -158,7 +158,11 @@ function EdgeRipples({
           alignItems: 'center',
           justifyContent: 'center',
           opacity: armed,
-          transform: [{ scale: coreScale }],
+          // The left edge's arrow is mirrored, so it points the way the finger moves.
+          transform: [
+            { scaleX: side === 'left' ? -1 : 1 },
+            { scale: coreScale },
+          ],
         }}
       >
         <Ionicons name="arrow-back" size={ICON_SIZE} color={ICON_COLOR} />
