@@ -1,5 +1,7 @@
-import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
+import type { NavigationState } from '@react-navigation/native';
 
+import { navigationRef } from './navigationRef';
 import {
   type FlowName,
   type InitialScreen,
@@ -8,12 +10,36 @@ import {
   type ScreenParams,
 } from './registry';
 
+// The name of the route currently shown, e.g. 'dashboard.main'.
+function readCurrentRoute(): string | undefined {
+  if (!navigationRef.isReady()) return undefined;
+  const state = navigationRef.getRootState() as NavigationState | undefined;
+  return state?.routes[state.index]?.name;
+}
+
+// The flow that owns the currently visible screen, e.g. 'dashboard' for
+// 'dashboard.main'. Updates whenever the navigation state changes.
+export function useCurrentFlow(): FlowName | undefined {
+  const [routeName, setRouteName] = useState(readCurrentRoute);
+
+  // The initial value is read when the hook first renders; later changes come from the listener.
+  useEffect(() => {
+    return navigationRef.addListener('state', () => {
+      setRouteName(readCurrentRoute());
+    });
+  }, []);
+
+  return routeName ? (routeName.split('.')[0] as FlowName) : undefined;
+}
+
 // Arguments for opening a screen: data is optional only if the screen accepts none.
 type ScreenArgs<S extends ScreenName> = undefined extends ScreenParams[S]
   ? [data?: ScreenParams[S]]
   : [data: ScreenParams[S]];
 
-type FlowArgs<F extends FlowName> = ScreenArgs<InitialScreen<F>>;
+type FlowArgs<F extends FlowName> = ScreenArgs<
+  Extract<InitialScreen<F>, ScreenName>
+>;
 
 // The subset of the navigation object these hooks use.
 type StackNavigation = {
@@ -23,8 +49,10 @@ type StackNavigation = {
   canGoBack: () => boolean;
 };
 
+// Navigation actions. They work from anywhere in the app, including layouts
+// that sit outside the screen stack.
 export function useNavigator() {
-  const navigation = useNavigation() as unknown as StackNavigation;
+  const navigation = navigationRef as unknown as StackNavigation;
 
   return {
     // Open a screen inside any flow, passing data to it.

@@ -10,6 +10,9 @@ import type { ComponentType } from 'react';
 
 import type { ScreenProps } from '../types/screen';
 import { Hello } from '../screens/Hello';
+import { Dashboard } from '../screens/Dashboard';
+import { Profile } from '../screens/Profile';
+import { Settings } from '../screens/Settings';
 
 export const flows = {
   initial: 'home',
@@ -19,18 +22,45 @@ export const flows = {
       hello: Hello,
     },
   },
+  dashboard: {
+    initial: 'main',
+    screens: {
+      main: Dashboard,
+    },
+  },
+  profile: {
+    initial: 'main',
+    screens: {
+      main: Profile,
+    },
+  },
+  settings: {
+    initial: 'main',
+    screens: {
+      main: Settings,
+    },
+  },
 } as const;
 
 type Flows = typeof flows;
 
 export type FlowName = Exclude<keyof Flows, 'initial'>;
 
+// The flows shown in the navigation layouts (drawer menu and bottom bar).
+export const navFlows: { flow: FlowName; label: string }[] = [
+  { flow: 'dashboard', label: 'Dashboard' },
+  { flow: 'profile', label: 'Profile' },
+  { flow: 'settings', label: 'Settings' },
+];
+
 export type ScreenName = {
   [F in FlowName]: `${F}.${keyof Flows[F]['screens'] & string}`;
 }[FlowName];
 
-export type InitialScreen<F extends FlowName> =
-  `${F}.${Flows[F]['initial'] & string}`;
+// Mapped per key, so each flow pairs with its own initial screen.
+export type InitialScreen<F extends FlowName> = {
+  [K in F]: `${K}.${Flows[K]['initial'] & string}`;
+}[F];
 
 // The component registered for a route name like 'dashboard.details'.
 type ComponentOf<N extends string> = N extends `${infer F}.${infer S}`

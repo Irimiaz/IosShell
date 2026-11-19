@@ -1,20 +1,15 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { BottomNavLayout } from './bottom/BottomNavLayout';
+import { DrawerLayout } from './drawer/DrawerLayout';
+import { FlowStack } from './FlowStack';
 
-import { defaultFlow, initialScreenOf, screenList } from './registry';
-
-const Stack = createNativeStackNavigator();
-
+// Both layouts are active: the floating hamburger menu from DrawerLayout and
+// the classic tab bar from BottomNavLayout. The screens are the innermost content.
 export function RootNavigator() {
   return (
-    <Stack.Navigator
-      initialRouteName={initialScreenOf(defaultFlow)}
-      screenOptions={{ headerShown: false }}
-    >
-      {screenList.map(({ name, component: Component }) => (
-        <Stack.Screen key={name} name={name}>
-          {({ route }) => <Component data={route.params} />}
-        </Stack.Screen>
-      ))}
-    </Stack.Navigator>
+    <DrawerLayout>
+      <BottomNavLayout>
+        <FlowStack />
+      </BottomNavLayout>
+    </DrawerLayout>
   );
 }

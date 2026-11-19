@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export function BaseScreen({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const midRed = '#E53935';
+  const darkRed = '#B71C1C';
   const scrollRef = useRef<ScrollViewInstance>(null);
 
   // When the keyboard opens, scroll to the end so content behind it can be reached.
@@ -38,7 +39,7 @@ export function BaseScreen({ children }: { children: ReactNode }) {
       >
         <ScrollView
           ref={scrollRef}
-          style={{ flex: 1, backgroundColor: midRed }}
+          style={{ flex: 1, backgroundColor: darkRed }}
           // Safe-area padding only. The spacing for content is set on the
           // inner View below, so the two don't override each other.
           contentContainerStyle={[
