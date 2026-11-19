@@ -2,6 +2,27 @@
 
 Build with your Apple ID and install on your own iPhone with a cable. The steps for a second Apple ID are in Case B below.
 
+## Build and install without launching
+
+Use this when you want the app on the phone now and start the dev server later:
+
+1. Stop `npm start` if it is running. Regenerating `ios/` fails while the dev server is watching the project.
+2. Install:
+
+   ```bash
+   npm run build
+   ```
+
+3. When you want to use the app, start the dev server and open IosShell on the phone:
+
+   ```bash
+   npm start
+   ```
+
+The Debug build loads its JavaScript from `npm start`, so the app only works while the dev server runs and the phone is on the same Wi-Fi (see [dev-server.md](dev-server.md)).
+
+If two iPhones are connected, pass the UDID: `bash scripts/build/install-no-launch.sh <UDID>`. The UDID is listed by `xcrun devicectl list devices`.
+
 ## Build steps
 
 1. Generate the native project. Run this after changing `.env`, `app.json`, `app.config.ts`, plugins, or native packages. It always regenerates `ios/` from scratch:

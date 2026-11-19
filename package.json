@@ -38,6 +38,7 @@
     "ios:tunnel": "expo start -- --tunnel",
     "prebuild": "bash scripts/build/prebuild.sh",
     "ios:device": "bash scripts/build/ensure-prebuild.sh && expo run:ios --device",
+    "build": "bash scripts/build/install-no-launch.sh",
     "ios:ipa": "bash scripts/build/build-unsigned-ipa.sh",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

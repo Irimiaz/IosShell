@@ -21,6 +21,7 @@ Run these from the project root.
 | --- | --- |
 | `npm run ios:device` | Regenerates `ios/` if `.env`, `app.json` or `app.config.ts` changed, then builds and installs on the connected iPhone |
 | `npm run prebuild` | Always regenerates `ios/` from scratch (`scripts/build/prebuild.sh`) |
+| `npm run build` | Builds the Debug app and installs it on the iPhone **without launching it**. Then run `npm start` and open the app |
 | `npm run ios:ipa` | Builds a self-contained Release app and writes `dist/IosShell-unsigned.ipa` |
 | `npm start` | Starts the Metro dev server for an app that is already installed |
 | `npm run ios:tunnel` | Starts the dev server through a tunnel, when phone and Mac are on different networks |
@@ -35,6 +36,7 @@ Run these from the project root.
 | `prebuild.sh` | Runs `expo prebuild --clean` and records a fingerprint of the config |
 | `ios-config-stamp.sh` | Prints the fingerprint of `IOS_BUNDLE_ID`, `APPLE_TEAM_ID`, `app.json` and `app.config.ts` |
 | `ensure-prebuild.sh` | Runs `prebuild.sh` only when the fingerprint changed. Used by `ios:device` and `ios:ipa` |
+| `install-no-launch.sh` | Debug build and install with `xcodebuild` and `devicectl`, no launch. Used by `build` |
 | `build-unsigned-ipa.sh` | Release build without signing, packaged as `dist/IosShell-unsigned.ipa` |
 
 `.env` and `.env.example` stay in the project root, because Expo reads `.env` from there.
