@@ -4,6 +4,20 @@
     "slug": "IosShell",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic"
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Confirm it's you with Face ID."
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.marianirimia27.IosShell"
+    },
+    "ios": {
+      "bundleIdentifier": "com.marianirimia27.IosShell"
+    }
   }
 }
