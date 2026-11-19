@@ -13,8 +13,15 @@ import { useNavigator } from './hooks';
 
 // Width of the touch strip on each edge.
 const EDGE_WIDTH = 24;
-// Size of the arrow bubble that appears at the edge.
-const BUBBLE_SIZE = 40;
+// Diameter of the core that appears once the swipe is far enough.
+const CORE_SIZE = 84;
+// Size of the area the ripples spread across.
+const RIPPLE_AREA = CORE_SIZE * 2.8;
+// Size of the icon inside the core.
+const ICON_SIZE = 36;
+// Accent colours. Warm, so they stand out on the red screen.
+const ACCENT = '#FFD54F';
+const ICON_COLOR = '#4E2A04';
 // Pulling past this fraction of the screen width goes back on release.
 const COMMIT_FRACTION = 0.3;
 
@@ -23,9 +30,10 @@ type Side = 'left' | 'right';
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-// The arrow bubble for one edge. It slides in and grows as the swipe gets
-// further, so the user can see that releasing will go back.
-function EdgeBubble({
+// Ripples that spread out of one screen edge while you pull. The screen stays
+// still. Once the swipe is far enough the ripples fade, and a warm core blooms
+// in their place with a back icon, so the user knows letting go will go back.
+function EdgeRipples({
   side,
   pull,
   width,
@@ -35,51 +43,134 @@ function EdgeBubble({
   width: number;
 }) {
   const commit = width * COMMIT_FRACTION;
-  const slideOut = side === 'left' ? -BUBBLE_SIZE : BUBBLE_SIZE;
-  const slideIn = side === 'left' ? 12 : -12;
+  // Direction into the screen: right for the left edge, left for the right.
+  const inward = side === 'left' ? 1 : -1;
 
-  const translateX = pull.interpolate({
+  // The whole group starts just outside the edge and moves in as you pull.
+  const slide = pull.interpolate({
     inputRange: [0, commit],
-    outputRange: [slideOut, slideIn],
+    // At full pull the core's centre sits on the edge, so only its inner half shows.
+    outputRange: [0, inward * CORE_SIZE * 0.5],
     extrapolate: 'clamp',
   });
-  const scale = pull.interpolate({
-    inputRange: [0, commit],
-    outputRange: [0.6, 1],
+  const grow = pull.interpolate({
+    inputRange: [0, commit * 0.85, commit],
+    outputRange: [0.7, 1, 1.05],
     extrapolate: 'clamp',
   });
   const opacity = pull.interpolate({
-    inputRange: [0, 12],
+    inputRange: [0, 8],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
+  // Ripples fade out as the swipe reaches the commit point.
+  const ripplesVisible = pull.interpolate({
+    inputRange: [commit * 0.7, commit],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+  // 0 → 1 at the commit point; the warm core and icon bloom in.
+  const armed = pull.interpolate({
+    inputRange: [commit * 0.8, commit],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+  const coreScale = armed.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.4, 1],
+  });
+
+  // Each ripple is a ring that spreads wider than the one before it.
+  const ripples = [0, 1, 2].map((index) => {
+    const size = CORE_SIZE * (1 + index * 0.55);
+    const ringScale = pull.interpolate({
+      inputRange: [0, commit],
+      outputRange: [0.6 + index * 0.08, 1 + index * 0.18],
+      extrapolate: 'clamp',
+    });
+    return { size, ringScale, index };
+  });
+
+  // The container is centred on the group. Its centre starts half a core
+  // outside the screen edge, so it is hidden at rest.
+  const container = RIPPLE_AREA;
+  const containerEdge = -(CORE_SIZE + container) / 2;
+  // Centres a layer of the given size inside the container.
+  const centred = (size: number) => ({
+    position: 'absolute' as const,
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+    left: (container - size) / 2,
+    top: (container - size) / 2,
+  });
+  // The icon sits in the visible, inward part of the core.
+  const iconLeft = container / 2 + inward * CORE_SIZE * 0.2 - ICON_SIZE / 2;
+  const iconTop = container / 2 - ICON_SIZE / 2;
 
   return (
     <Animated.View
       pointerEvents="none"
-      className="absolute items-center justify-center rounded-full bg-white"
-      style={[
-        styles.bubble,
-        {
-          width: BUBBLE_SIZE,
-          height: BUBBLE_SIZE,
-          top: '45%',
-          [side]: 0,
-          opacity,
-          transform: [{ translateX }, { scale }],
-        },
-      ]}
+      className="absolute"
+      style={{
+        width: container,
+        height: container,
+        top: '50%',
+        marginTop: -container / 2,
+        [side]: containerEdge,
+        opacity,
+        transform: [{ translateX: slide }, { scale: grow }],
+      }}
     >
-      <Ionicons name="chevron-back" size={22} color="#000000" />
+      {ripples.map(({ size, ringScale, index }) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.ring,
+            centred(size),
+            {
+              opacity: ripplesVisible.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.85 - index * 0.2],
+              }),
+              transform: [{ scale: ringScale }],
+            },
+          ]}
+        />
+      ))}
+      {/* The warm core, which blooms in once armed. */}
+      <Animated.View
+        style={[
+          styles.core,
+          centred(CORE_SIZE),
+          { opacity: armed, transform: [{ scale: coreScale }] },
+        ]}
+      />
+      {/* The back icon, which appears with the core. */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          left: iconLeft,
+          top: iconTop,
+          width: ICON_SIZE,
+          height: ICON_SIZE,
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: armed,
+          transform: [{ scale: coreScale }],
+        }}
+      >
+        <Ionicons name="arrow-back" size={ICON_SIZE} color={ICON_COLOR} />
+      </Animated.View>
     </Animated.View>
   );
 }
 
 // Swipe back from either screen edge, only when the stack can go back. The
-// content follows the finger and an arrow bubble appears at the edge. Release
-// past the threshold to go back; otherwise the content springs back.
-//
-// Wrap only the screen content, so the tab bar and menu button stay in place.
+// screen stays still; ripples spread out of the edge while you pull, and a warm
+// core with an icon blooms once the swipe is far enough. Release past the
+// threshold to go back; otherwise the ripples sink back into the edge.
 export function BackSwipe({ children }: { children: ReactNode }) {
   const { width } = useWindowDimensions();
   const { back, canGoBack } = useNavigator();
@@ -89,11 +180,11 @@ export function BackSwipe({ children }: { children: ReactNode }) {
     right: new Animated.Value(0),
   }));
 
-  const springBack = (value: Animated.Value) => {
+  const relax = (value: Animated.Value) => {
     Animated.spring(value, {
       toValue: 0,
       useNativeDriver: true,
-      bounciness: 6,
+      bounciness: 4,
     }).start();
   };
 
@@ -111,11 +202,11 @@ export function BackSwipe({ children }: { children: ReactNode }) {
       },
       onPanResponderRelease: (_, g) => {
         if (travel(g.dx) > width * COMMIT_FRACTION && canGoBack()) {
-          // Slide the content out, then go back. The screen change happens
-          // while the content is off-screen, so the new screen starts at rest.
+          // The ripples swell, then the screen changes. The value is reset right
+          // after, so the new screen starts without them.
           Animated.timing(value, {
-            toValue: width,
-            duration: 150,
+            toValue: width * COMMIT_FRACTION * 1.2,
+            duration: 120,
             useNativeDriver: true,
           }).start(({ finished }) => {
             if (finished) {
@@ -124,37 +215,19 @@ export function BackSwipe({ children }: { children: ReactNode }) {
             }
           });
         } else {
-          springBack(value);
+          relax(value);
         }
       },
-      onPanResponderTerminate: () => springBack(value),
+      onPanResponderTerminate: () => relax(value),
     }).panHandlers;
   };
 
-  const contentTransform = {
-    left: pull.left,
-    right: pull.right.interpolate({
-      inputRange: [0, width],
-      outputRange: [0, -width],
-    }),
-  };
-
   return (
-    <View className="flex-1 overflow-hidden">
-      <Animated.View
-        className="flex-1"
-        style={{ transform: [{ translateX: contentTransform.left }] }}
-      >
-        <Animated.View
-          className="flex-1"
-          style={{ transform: [{ translateX: contentTransform.right }] }}
-        >
-          {children}
-        </Animated.View>
-      </Animated.View>
+    <View className="flex-1">
+      {children}
 
-      <EdgeBubble side="left" pull={pull.left} width={width} />
-      <EdgeBubble side="right" pull={pull.right} width={width} />
+      <EdgeRipples side="left" pull={pull.left} width={width} />
+      <EdgeRipples side="right" pull={pull.right} width={width} />
 
       <View
         {...edgeHandlers('left')}
@@ -173,11 +246,18 @@ export function BackSwipe({ children }: { children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  bubble: {
+  ring: {
+    position: 'absolute',
+    borderWidth: 2.5,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  core: {
+    position: 'absolute',
+    backgroundColor: ACCENT,
     shadowColor: '#000000',
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
 });

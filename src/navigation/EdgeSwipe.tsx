@@ -1,4 +1,9 @@
-import { PanResponder, View } from 'react-native';
+import {
+  PanResponder,
+  type GestureResponderEvent,
+  type PanResponderGestureState,
+  View,
+} from 'react-native';
 
 // How far the finger must travel for a swipe to count.
 const SWIPE_DISTANCE = 50;
@@ -10,23 +15,31 @@ type Direction = 'left' | 'right';
 // Gesture handlers for a swipe in `direction`. Attach them to a View with
 // {...swipeHandlers(...)}. `canStart` is checked when a swipe begins and again
 // on release; `onSwipe` runs when the swipe is long enough.
+//
+// With `capture`, the View takes the swipe before its children do. Use it when
+// the swipe should work anywhere inside the View, even over buttons.
 export function swipeHandlers({
   direction,
   canStart,
   onSwipe,
+  capture = false,
 }: {
   direction: Direction;
   canStart: () => boolean;
   onSwipe: () => void;
+  capture?: boolean;
 }) {
   // Positive when the finger moves in the swipe direction.
   const along = (dx: number) => (direction === 'right' ? dx : -dx);
 
+  const shouldStart = (_: GestureResponderEvent, g: PanResponderGestureState) =>
+    along(g.dx) > START_DISTANCE &&
+    Math.abs(g.dy) < Math.abs(g.dx) &&
+    canStart();
+
   return PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) =>
-      along(g.dx) > START_DISTANCE &&
-      Math.abs(g.dy) < Math.abs(g.dx) &&
-      canStart(),
+    onMoveShouldSetPanResponder: capture ? undefined : shouldStart,
+    onMoveShouldSetPanResponderCapture: capture ? shouldStart : undefined,
     onPanResponderRelease: (_, g) => {
       if (along(g.dx) > SWIPE_DISTANCE && canStart()) onSwipe();
     },

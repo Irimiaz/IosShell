@@ -13,7 +13,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import { EdgeSwipe, swipeHandlers } from '../EdgeSwipe';
+import { swipeHandlers } from '../EdgeSwipe';
 import { useCurrentFlow, useNavigator } from '../hooks';
 import { navFlows } from '../registry';
 
@@ -68,21 +68,23 @@ export function DrawerLayout({ children }: { children: ReactNode }) {
     toFlow(flow);
   };
 
+  // Swipe right anywhere on the screen to open the menu, when it is closed.
+  // It captures the swipe first, so it also works over the content's buttons.
+  const openHandlers = swipeHandlers({
+    direction: 'right',
+    canStart: () => !open,
+    onSwipe: () => setOpen(true),
+    capture: true,
+  });
+
   return (
-    <View className="flex-1">
+    <View className="flex-1" {...openHandlers}>
       {/* Content starts below the floating button, so screens keep their background. */}
       <SafeAreaInsetsContext.Provider
         value={{ ...insets, top: insets.top + BUTTON_AREA }}
       >
         {children}
       </SafeAreaInsetsContext.Provider>
-
-      {/* Swipe from the left edge to open the menu, when it is closed. */}
-      <EdgeSwipe
-        side="left"
-        canStart={() => !open}
-        onSwipe={() => setOpen(true)}
-      />
 
       {/* Floating button. Position depends on the device, so it is set in style. */}
       <Pressable

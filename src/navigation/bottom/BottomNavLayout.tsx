@@ -6,7 +6,6 @@ import {
 } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { BackSwipe } from '../BackSwipe';
 import { useCurrentFlow, useNavigator } from '../hooks';
 import { navFlows } from '../registry';
 
@@ -40,13 +39,9 @@ export function BottomNavLayout({ children }: { children: ReactNode }) {
     <View className="flex-1">
       <View className="flex-1">
         {/* The bar is below this view, so screens don't add a bottom inset. */}
-        {/* Swipe from either edge to go back, only when the stack can go back.
-            Wraps only the content, so the tab bar stays put. */}
-        <BackSwipe>
-          <SafeAreaInsetsContext.Provider value={{ ...insets, bottom: 0 }}>
-            {children}
-          </SafeAreaInsetsContext.Provider>
-        </BackSwipe>
+        <SafeAreaInsetsContext.Provider value={{ ...insets, bottom: 0 }}>
+          {children}
+        </SafeAreaInsetsContext.Provider>
       </View>
 
       {/* The bottom inset (home indicator area) depends on the device, so it is set in style. */}
