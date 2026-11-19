@@ -12,12 +12,6 @@
           "faceIDPermission": "Confirm it's you with Face ID."
         }
       ]
-    ],
-    "android": {
-      "package": "com.marianirimia27.IosShell"
-    },
-    "ios": {
-      "bundleIdentifier": "com.marianirimia27.IosShell"
-    }
+    ]
   }
 }
