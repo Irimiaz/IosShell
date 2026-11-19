@@ -10,12 +10,19 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// Internal React Native module: finds the text input that has focus.
+// If a React Native upgrade breaks this import, check this file first.
+import TextInputState from 'react-native/Libraries/Components/TextInput/TextInputState';
+
+// Space kept between a focused field and the top of the keyboard.
+const FIELD_MARGIN = 16;
 
 // Wrapper for every screen. It only takes children; the layout is the same
 // for all screens and is changed here.
 //
 // - Scrolls only when the content is taller than the screen.
 // - Keyboard avoiding is on, and tapping empty space closes the keyboard.
+//   When the keyboard opens, the screen scrolls only if the focused field is hidden.
 // - Content is kept clear of the notch, status bar and home indicator.
 // - Background is beige (#F5F5DC) and fills the whole screen.
 // - Pull to refresh is off by default. With `pullToRefresh`, pulling down runs
@@ -33,8 +40,9 @@ export function BaseScreen({
   const insets = useSafeAreaInsets();
   const midRed = '#E53935';
   const darkRed = '#B71C1C';
-  const scrollRef = useRef<ScrollViewInstance>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const scrollOffset = useRef(0);
 
   async function refresh() {
     setRefreshing(true);
@@ -45,10 +53,21 @@ export function BaseScreen({
     }
   }
 
-  // When the keyboard opens, scroll to the end so content behind it can be reached.
+  // When the keyboard opens, scroll only if the focused field is under it.
   useEffect(() => {
-    const subscription = Keyboard.addListener('keyboardDidShow', () => {
-      scrollRef.current?.scrollToEnd({ animated: true });
+    const subscription = Keyboard.addListener('keyboardDidShow', (event) => {
+      const field = TextInputState.currentlyFocusedInput();
+      if (!field) return;
+      const keyboardTop = event.endCoordinates.screenY;
+      field.measureInWindow((_x, y, _width, height) => {
+        const overlap = y + height + FIELD_MARGIN - keyboardTop;
+        if (overlap > 0) {
+          scrollRef.current?.scrollTo({
+            y: scrollOffset.current + overlap,
+            animated: true,
+          });
+        }
+      });
     });
     return () => subscription.remove();
   }, []);
@@ -61,6 +80,10 @@ export function BaseScreen({
       >
         <ScrollView
           ref={scrollRef}
+          onScroll={(event) => {
+            scrollOffset.current = event.nativeEvent.contentOffset.y;
+          }}
+          scrollEventThrottle={16}
           style={{ flex: 1, backgroundColor: darkRed }}
           // Safe-area padding only. The spacing for content is set on the
           // inner View below, so the two don't override each other.

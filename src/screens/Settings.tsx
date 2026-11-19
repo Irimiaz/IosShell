@@ -11,6 +11,12 @@ import {
 } from '../device/photos';
 import { createDocumentPdf, sharePdf } from '../device/pdf';
 import {
+  nextOccurrence,
+  parseTimeOfDay,
+  scheduleNotification,
+  sendNotificationNow,
+} from '../device/notifications';
+import {
   decodeDocument,
   ECL_LEVELS,
   encodeDocument,
@@ -32,6 +38,11 @@ const inputClass = 'rounded-xl bg-white px-3 py-3 text-base text-black';
 export function Settings() {
   const [photoUri, setPhotoUri] = useState<string | undefined>();
   const [text, setText] = useState('Hello from IosShell');
+
+  // Notifications: the text shown, and the time (HH:mm) for a scheduled one
+  const [notifTitle, setNotifTitle] = useState('IosShell');
+  const [notifBody, setNotifBody] = useState('Hello from IosShell');
+  const [notifTime, setNotifTime] = useState('');
 
   // QR code generator
   const [qrOpen, setQrOpen] = useState(false);
@@ -108,6 +119,80 @@ export function Settings() {
               />
             }
           />
+        </Group>
+
+        <Group title="Notifications">
+          <Card
+            icon="notifications"
+            title="Send now"
+            description="Shows a notification on this phone straight away. No phone number is needed."
+            action={
+              <ActionButton
+                title="Send notification"
+                onPress={async () => {
+                  const sent = await sendNotificationNow(notifTitle, notifBody);
+                  if (!sent.ok) {
+                    Alert.alert('Not sent', sent.reason);
+                  }
+                }}
+              />
+            }
+          >
+            <NotificationFields
+              title={notifTitle}
+              onTitleChange={setNotifTitle}
+              body={notifBody}
+              onBodyChange={setNotifBody}
+            />
+          </Card>
+
+          <Card
+            icon="time"
+            title="Schedule"
+            description="Shows the notification at the time you type, as HH:mm (24-hour clock). If that time has already passed today, it is shown tomorrow."
+            action={
+              <ActionButton
+                title="Schedule notification"
+                onPress={async () => {
+                  const time = parseTimeOfDay(notifTime);
+                  if (!time) {
+                    Alert.alert(
+                      'Not scheduled',
+                      'Type the time as HH:mm, for example 14:30.',
+                    );
+                    return;
+                  }
+                  const when = nextOccurrence(time.hour, time.minute);
+                  const scheduled = await scheduleNotification(
+                    notifTitle,
+                    notifBody,
+                    when,
+                  );
+                  if (scheduled.ok) {
+                    Alert.alert(
+                      'Scheduled',
+                      `The notification will show at ${when.toLocaleString()}.`,
+                    );
+                  } else {
+                    Alert.alert('Not scheduled', scheduled.reason);
+                  }
+                }}
+              />
+            }
+          >
+            <View className="gap-1.5">
+              <Label>Time (HH:mm)</Label>
+              <TextInput
+                value={notifTime}
+                onChangeText={setNotifTime}
+                autoCapitalize="none"
+                placeholder="14:30"
+                placeholderTextColor="#888"
+                keyboardType="numbers-and-punctuation"
+                className={inputClass}
+              />
+            </View>
+          </Card>
         </Group>
 
         <Group title="Camera & photos">
@@ -365,6 +450,46 @@ export function Settings() {
         </Group>
       </View>
     </BaseScreen>
+  );
+}
+
+// The title and text of a notification.
+function NotificationFields({
+  title,
+  onTitleChange,
+  body,
+  onBodyChange,
+}: {
+  title: string;
+  onTitleChange: (value: string) => void;
+  body: string;
+  onBodyChange: (value: string) => void;
+}) {
+  return (
+    <View className="gap-3">
+      <View className="gap-1.5">
+        <Label>Title</Label>
+        <TextInput
+          value={title}
+          onChangeText={onTitleChange}
+          placeholder="Notification title"
+          placeholderTextColor="#888"
+          className={inputClass}
+        />
+      </View>
+      <View className="gap-1.5">
+        <Label>Text</Label>
+        <TextInput
+          value={body}
+          onChangeText={onBodyChange}
+          multiline
+          placeholder="Notification text"
+          placeholderTextColor="#888"
+          className={`min-h-16 ${inputClass}`}
+          textAlignVertical="top"
+        />
+      </View>
+    </View>
   );
 }
 
