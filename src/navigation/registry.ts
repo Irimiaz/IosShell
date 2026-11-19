@@ -13,6 +13,7 @@ import { Hello } from '../screens/Hello';
 import { Dashboard } from '../screens/Dashboard';
 import { Profile } from '../screens/Profile';
 import { Settings } from '../screens/Settings';
+import { DashboardDetails } from '../screens/DashboardDetails';
 
 export const flows = {
   initial: 'home',
@@ -26,6 +27,7 @@ export const flows = {
     initial: 'main',
     screens: {
       main: Dashboard,
+      details: DashboardDetails,
     },
   },
   profile: {

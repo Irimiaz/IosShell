@@ -13,6 +13,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import { EdgeSwipe, swipeHandlers } from '../EdgeSwipe';
 import { useCurrentFlow, useNavigator } from '../hooks';
 import { navFlows } from '../registry';
 
@@ -76,6 +77,13 @@ export function DrawerLayout({ children }: { children: ReactNode }) {
         {children}
       </SafeAreaInsetsContext.Provider>
 
+      {/* Swipe from the left edge to open the menu, when it is closed. */}
+      <EdgeSwipe
+        side="left"
+        canStart={() => !open}
+        onSwipe={() => setOpen(true)}
+      />
+
       {/* Floating button. Position depends on the device, so it is set in style. */}
       <Pressable
         accessibilityRole="button"
@@ -105,6 +113,12 @@ export function DrawerLayout({ children }: { children: ReactNode }) {
       <Animated.View
         pointerEvents={open ? 'auto' : 'none'}
         className="absolute bottom-0 left-0 top-0 bg-white px-4"
+        // Swipe left on the open menu to close it.
+        {...swipeHandlers({
+          direction: 'left',
+          canStart: () => open,
+          onSwipe: () => setOpen(false),
+        })}
         style={[
           styles.menuShadow,
           {

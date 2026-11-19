@@ -10,7 +10,7 @@ export function FlowStack() {
   return (
     <Stack.Navigator
       initialRouteName={initialScreenOf(defaultFlow)}
-      // Screens switch instantly, with no animation. The native swipe-back is off: EdgeBackGesture
+      // Screens switch instantly, with no animation. The native swipe-back is off: EdgeSwipe
       // handles both edges and only acts when the stack can go back.
       screenOptions={{
         headerShown: false,
