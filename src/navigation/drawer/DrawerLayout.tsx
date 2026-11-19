@@ -18,8 +18,6 @@ import { useCurrentFlow, useNavigator } from '../hooks';
 import { navFlows } from '../registry';
 
 const ANIMATION_MS = 250;
-// Space the floating button takes at the top. Content starts below it.
-const BUTTON_AREA = 64;
 
 // Hamburger button: three bars drawn with views, so no icon font is needed.
 function MenuIcon() {
@@ -79,24 +77,28 @@ export function DrawerLayout({ children }: { children: ReactNode }) {
 
   return (
     <View className="flex-1" {...openHandlers}>
-      {/* Content starts below the floating button, so screens keep their background. */}
-      <SafeAreaInsetsContext.Provider
-        value={{ ...insets, top: insets.top + BUTTON_AREA }}
+      {/* Top bar above the screen, with the menu button on the left. */}
+      <View
+        className="flex-row items-center bg-red-400 px-6"
+        style={{ paddingTop: insets.top }}
       >
-        {children}
-      </SafeAreaInsetsContext.Provider>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+          hitSlop={10}
+          onPress={() => setOpen(true)}
+          className="h-11 w-11 items-center justify-center"
+        >
+          <MenuIcon />
+        </Pressable>
+      </View>
 
-      {/* Floating button. Position depends on the device, so it is set in style. */}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Open menu"
-        hitSlop={10}
-        onPress={() => setOpen(true)}
-        className="absolute left-4 h-11 w-11 items-center justify-center rounded-full bg-white"
-        style={[styles.buttonShadow, { top: insets.top + 8 }]}
-      >
-        <MenuIcon />
-      </Pressable>
+      {/* Screens below the bar. The bar already handles the top inset. */}
+      <View className="flex-1">
+        <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
+          {children}
+        </SafeAreaInsetsContext.Provider>
+      </View>
 
       {/* Dimmed background; tapping it closes the menu. */}
       <Animated.View
@@ -157,13 +159,6 @@ export function DrawerLayout({ children }: { children: ReactNode }) {
 
 // Shadows have no simple Tailwind equivalent on both platforms, so they stay here.
 const styles = StyleSheet.create({
-  buttonShadow: {
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
-  },
   menuShadow: {
     shadowColor: '#000000',
     shadowOpacity: 0.25,

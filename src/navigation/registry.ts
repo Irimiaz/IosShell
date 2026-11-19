@@ -2,32 +2,24 @@
 //
 // - `initial` names the flow that opens when the app starts.
 // - A flow is a group of screens. Entering a flow opens its own `initial` screen.
-// - A screen's route name is `<flow>.<screen>`, e.g. `dashboard.details`.
+// - A screen's route name is `<flow>.<screen>`, e.g. `dashboard.main`.
 // - To add a screen: write the component (its `data` prop type is the screen's
 //   data type), then add it under a flow below.
 
 import type { ComponentType } from 'react';
 
-import type { ScreenProps } from '../types/screen';
-import { Hello } from '../screens/Hello';
 import { Dashboard } from '../screens/Dashboard';
 import { Profile } from '../screens/Profile';
 import { Settings } from '../screens/Settings';
-import { DashboardDetails } from '../screens/DashboardDetails';
+import type { ScreenProps } from '../types/screen';
 
 export const flows = {
-  initial: 'home',
-  home: {
-    initial: 'hello',
-    screens: {
-      hello: Hello,
-    },
-  },
+  initial: 'dashboard',
+
   dashboard: {
     initial: 'main',
     screens: {
       main: Dashboard,
-      details: DashboardDetails,
     },
   },
   profile: {
@@ -64,7 +56,7 @@ export type InitialScreen<F extends FlowName> = {
   [K in F]: `${K}.${Flows[K]['initial'] & string}`;
 }[F];
 
-// The component registered for a route name like 'dashboard.details'.
+// The component registered for a route name like 'dashboard.main'.
 type ComponentOf<N extends string> = N extends `${infer F}.${infer S}`
   ? F extends FlowName
     ? S extends keyof Flows[F]['screens']

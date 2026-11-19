@@ -25,6 +25,8 @@ const icons: Partial<
 
 const ACTIVE_COLOR = '#000000';
 const INACTIVE_COLOR = '#737373';
+// How far the bar sits lower, taken from the space below it (the home-indicator area).
+const BAR_LOWER = 8;
 
 // A classic tab bar at the bottom: a solid bar with icons and labels, and the
 // content above it. The bar is not moved by the keyboard, so the keyboard
@@ -47,7 +49,7 @@ export function BottomNavLayout({ children }: { children: ReactNode }) {
       {/* The bottom inset (home indicator area) depends on the device, so it is set in style. */}
       <View
         className="flex-row border-t border-neutral-300 bg-white"
-        style={{ paddingBottom: insets.bottom }}
+        style={{ paddingBottom: Math.max(insets.bottom - BAR_LOWER, 0) }}
       >
         {navFlows.map(({ flow, label }) => {
           const active = flow === currentFlow;
