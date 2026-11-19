@@ -8,6 +8,7 @@
 
 import type { ComponentType } from 'react';
 
+import { Build } from '../screens/Build';
 import { Dashboard } from '../screens/Dashboard';
 import { Profile } from '../screens/Profile';
 import { Settings } from '../screens/Settings';
@@ -34,6 +35,12 @@ export const flows = {
       main: Settings,
     },
   },
+  build: {
+    initial: 'main',
+    screens: {
+      main: Build,
+    },
+  },
 } as const;
 
 type Flows = typeof flows;
@@ -45,6 +52,7 @@ export const navFlows: { flow: FlowName; label: string }[] = [
   { flow: 'dashboard', label: 'Dashboard' },
   { flow: 'profile', label: 'Profile' },
   { flow: 'settings', label: 'Settings' },
+  { flow: 'build', label: 'Build' },
 ];
 
 export type ScreenName = {

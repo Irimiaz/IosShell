@@ -23,6 +23,9 @@ IPA_PATH="$OUT_DIR/$SCHEME-unsigned.ipa"
 
 bash scripts/build/ensure-prebuild.sh
 
+# Record this build's details for the Build tab in the app.
+node scripts/build/write-build-info.mjs Release
+
 echo "== Building Release (unsigned) =="
 xcodebuild \
   -workspace "$WORKSPACE" \

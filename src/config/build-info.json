@@ -1,0 +1,13 @@
+{
+  "appName": "IosShell",
+  "bundleVersion": "1.0.0",
+  "packageVersion": "1.0.0",
+  "buildNumber": "26",
+  "gitCommit": "caa2083",
+  "gitBranch": "main",
+  "gitDirty": "yes",
+  "configuration": "Debug",
+  "builtAtIso": "2026-11-19T19:28:22.617Z",
+  "builtAtRomania": "19 nov. 2026, 21:28:22",
+  "nodeVersion": "v26.13.1"
+}

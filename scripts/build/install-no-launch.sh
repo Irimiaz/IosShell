@@ -17,6 +17,9 @@ APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphoneos/$SCHEME.app"
 
 bash scripts/build/ensure-prebuild.sh
 
+# Record this build's details for the Build tab in the app.
+node scripts/build/write-build-info.mjs Debug
+
 # Physical iPhones that are paired and reachable.
 DEVICE_IDS=$(xcrun devicectl list devices 2>/dev/null \
   | grep -E "physical" \
