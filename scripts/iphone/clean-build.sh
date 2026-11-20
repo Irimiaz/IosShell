@@ -11,20 +11,28 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 
-echo "== Clearing caches =="
-# Metro (the JavaScript bundler) and its file map.
-rm -rf "${TMPDIR:-/tmp}"metro-* "${TMPDIR:-/tmp}"haste-map-* "${TMPDIR:-/tmp}"react-native-packager-cache-* 2>/dev/null || true
-rm -rf node_modules/.cache
-# Watchman, if it is installed.
-if command -v watchman >/dev/null 2>&1; then
-  watchman watch-del-all >/dev/null 2>&1 || true
-fi
+source scripts/iphone/lib/ui.sh
+source scripts/iphone/lib/install-steps.sh
 
-echo "== Deleting ios/ (it is generated and gitignored) =="
-rm -rf ios
+clear_caches() {
+  # Metro (the JavaScript bundler) and its file map.
+  rm -rf "${TMPDIR:-/tmp}"metro-* "${TMPDIR:-/tmp}"haste-map-* \
+    "${TMPDIR:-/tmp}"react-native-packager-cache-* 2>/dev/null || true
+  rm -rf node_modules/.cache
+  # Watchman, if it is installed.
+  if command -v watchman >/dev/null 2>&1; then
+    watchman watch-del-all >/dev/null 2>&1 || true
+  fi
+}
 
-echo "== Regenerating ios/ =="
-bash scripts/iphone/regenerate.sh
+title "Clean build, install without opening"
+begin_steps $(( INSTALL_STEPS + 3 ))
 
-echo "== Building and installing without opening =="
-bash scripts/iphone/install.sh "$@"
+task "Clearing caches" "" clear_caches
+# ios/ is generated and gitignored, so it is safe to delete.
+task "Deleting ios/" "" rm -rf ios
+task "Regenerating ios/" "" bash scripts/iphone/regenerate.sh
+
+install_steps "${1:-}"
+
+done_banner "Installed. Run 'npm start' and open the app on the iPhone."

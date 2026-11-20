@@ -21,13 +21,13 @@ const tasks = [
   {
     key: '2',
     title: 'Install the app without opening it',
-    when: 'Use it first, and after changing .env, app.json or a native package. Puts the app on the phone now. Open it later, with option 1 running.',
+    when: 'Builds and installs on the iPhone that is connected by cable, or paired on Wi-Fi. Does not open the app. Open it later, with option 1 running.',
     command: ['bash', ['scripts/iphone/install.sh']],
   },
   {
     key: '3',
     title: 'Install and open the app on the iPhone',
-    when: 'Installs and opens the app now, and starts the dev server. Use it to open the app right away.',
+    when: 'Same install as option 2, then starts the dev server and opens the app. Use it to open the app right away.',
     command: ['bash', ['scripts/iphone/run.sh']],
   },
 

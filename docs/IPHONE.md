@@ -34,7 +34,7 @@ Do this once per Mac, and once per iPhone.
 - Node.js LTS (18 or newer) and npm
 - CocoaPods. `expo prebuild` installs it if it is missing, or install it with `brew install cocoapods`.
 - An Apple ID signed in to Xcode. See [APPLE_TEAM_ID](#apple_team_id) for how. A free Apple ID is enough for installing on your own phone.
-- An iPhone on a supported iOS version, connected with a USB or USB-C cable.
+- An iPhone on a supported iOS version. Its first pairing with the Mac needs a USB or USB-C cable. After that, Wi-Fi can be used (see [Connect over Wi-Fi](#connect-over-wi-fi)).
 
 ### Steps
 
@@ -43,6 +43,18 @@ Do this once per Mac, and once per iPhone.
 3. Connect the iPhone, unlock it, and tap **Trust** when asked "Trust This Computer?". Enter the passcode.
 4. Check that Xcode sees the phone: `xcrun xctrace list devices`. The iPhone should be under "Devices". If not, see [Troubleshooting](#device-and-connection).
 5. Code signing asks for keychain access on the first build. When `codesign` asks to use the "Apple Development" key, enter your Mac login password and click **Always Allow**.
+
+### Connect over Wi-Fi
+
+Pair the iPhone once with a cable. After that, you can use it over Wi-Fi and unplug the cable.
+
+1. Connect the iPhone with a cable and complete steps 2 to 5 above.
+2. In Xcode, open **Window → Devices and Simulators**, select the iPhone, and turn on **Connect via network**.
+3. Unplug the cable. Check that the phone is still listed: `xcrun devicectl list devices`. It shows `available (paired)` when it can be reached.
+
+To use Wi-Fi later, the iPhone must be unlocked, on the same Wi-Fi network as the Mac, and have Wi-Fi connection turned on. Install with option 2 works this way. Option 3 also needs the phone to reach the dev server on the Mac, so both must be on the same network. If the cable is needed again, plug it in: pairing is not lost.
+
+Tested: option 2 installed the app over Wi-Fi after the first cable pairing. Option 3 over Wi-Fi is not yet verified.
 
 ## Values in .env
 
@@ -111,7 +123,7 @@ If two iPhones are connected, pass the UDID: `bash scripts/iphone/install.sh <UD
 
 1. Run `npm run iphone` (option 3). It regenerates `ios/` when the config changed, then builds and installs on the connected iPhone. If more than one phone is connected, it asks which one to use.
 2. The first launch may be blocked. On the iPhone go to **Settings → General → VPN & Device Management**, tap your Apple ID under "Developer App", then tap **Trust**. Open the app again.
-3. Run `npm start` to load JavaScript changes. The cable is needed only to reinstall native changes.
+3. Run `npm start` to load JavaScript changes. The cable is not needed after the first pairing. Wi-Fi works for reinstalling native changes too (see [Connect over Wi-Fi](#connect-over-wi-fi)).
 
 `npm run iphone` (option 7) rebuilds `ios/` from scratch. You rarely need it, because options 2 and 3 rebuild `ios/` on their own when the config changed.
 
