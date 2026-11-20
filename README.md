@@ -6,12 +6,10 @@ An Expo starter for iPhone apps. It comes with navigation, a demo of the device 
 
 1. Create your repo with GitHub's **Use this template** button, then clone it. Or clone this repo with `git clone`.
 2. Install the dependencies: `npm install`
-3. Set up the app: `npm run setup`. It asks a few questions (name, bundle ID, team, username, time zone, demo, git history) and writes `.env` and `app.json`. Answer **yes** to keep the demo, so you can test it.
+3. Set up the app: `npm run setup`. It asks a few questions (name, bundle ID, team, username, time zone, demo) and writes `.env` and `app.json`. Answer **yes** to keep the demo, so you can test it.
 4. Open the menu: `npm run iphone`. Choose **2** to install the app on your iPhone and open it, then test the demo.
 5. When you are done testing, open the menu again and choose **9** to remove the demo.
 6. Commit and push your changes.
-
-The git question in step 3 asks whether to start a clean history. Answer **no** if you used the template button, which keeps your history and your link to GitHub. Answer **yes** only after a `git clone` of this repo, when you want to delete the history in the folder. That cannot be undone.
 
 The first time you use an iPhone, read the [iPhone guide](docs/IPHONE.md). It covers the one-time setup, the values in `.env`, and error messages.
 

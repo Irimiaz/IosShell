@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// Turns this template into a new app. Asks for each value in the terminal, then:
+// Turns this template into a new app. Asks each question in the terminal, then:
 //   - writes .env and app.json, and renames the app in every tracked file
 //   - adds a placeholder for src/config/build-info.json (gitignored)
-//   - optionally removes the demo screens
-//   - optionally replaces the git history with a fresh one
+//   - keeps or removes the demo screens
 //
 //   npm run setup
 
@@ -51,9 +50,12 @@ const BINARY_EXTENSIONS = new Set([
   '.otf',
 ]);
 
+const TOTAL_QUESTIONS = 6;
 const oldName = readJson('app.json').expo.name;
+
+// One reader for the whole session. Reads a line at a time, so it works the
+// same in a terminal and with piped input.
 const rl = createInterface({ input: process.stdin });
-// Reads lines one at a time. Works the same in a terminal and with piped input.
 const lines = rl[Symbol.asyncIterator]();
 
 async function readLine(prompt) {
@@ -68,162 +70,178 @@ async function readLine(prompt) {
   return next.value.trim();
 }
 
-// Prints the explanation shown above a question.
-function printHelp(lines) {
-  for (const line of lines) console.log(`  ${line}`);
-  if (lines.length) console.log();
+// Prints "[3/7] Title" and the short notes under it.
+function question(step, title, notes = []) {
+  console.log(`\n[${step}/${TOTAL_QUESTIONS}] ${title}`);
+  for (const note of notes) console.log(`      ${note}`);
 }
 
-// Asks until the answer passes `check`. An empty answer takes `fallback`,
-// or is skipped when `optional`. `help` explains the value before the prompt.
+// Asks for text until it passes `check`. Enter takes `fallback`, or skips
+// the question when `optional`.
 async function ask(
-  label,
-  { fallback = '', optional = false, check, help = [] } = {},
+  step,
+  title,
+  { notes = [], fallback = '', optional = false, check } = {},
 ) {
-  printHelp(help);
+  question(step, title, notes);
+  if (fallback) console.log(`      Press Enter for: ${fallback}`);
+  if (optional) console.log('      Optional: press Enter to skip.');
   for (;;) {
-    const hint = fallback
-      ? ` [${fallback}]`
-      : optional
-        ? ' (optional, Enter to skip)'
-        : '';
-    const answer = await readLine(`${label}${hint}: `);
-    const value = answer || fallback;
+    const value = (await readLine('  > ')) || fallback;
     if (!value) {
       if (optional) return '';
-      console.log('  Please enter a value.');
+      console.log('      Please type a value.');
       continue;
     }
     const problem = check?.(value);
     if (problem) {
-      console.log(`  ${problem}`);
+      console.log(`      ${problem}`);
       continue;
     }
     return value;
   }
 }
 
-// Asks a y/n question. Type y or n (or yes / no). Enter takes the default,
-// which is shown in capitals. Anything else asks again.
-async function yesNo(label, defaultYes, help = []) {
-  printHelp(help);
-  const hint = defaultYes ? 'y/n, Enter = y' : 'y/n, Enter = n';
+// Asks a yes/no question with no step number. Enter means yes.
+async function confirm(text) {
+  const answer = (
+    await readLine(`
+ y/n, Enter = yes > `)
+  ).toLowerCase();
+  if (!answer || answer === 'y' || answer === 'yes') return true;
+  return false;
+}
+
+// A y/n question. Enter takes the default. Anything else asks again.
+async function yesNo(step, title, defaultYes, notes = []) {
+  question(step, title, notes);
+  const hint = defaultYes ? 'yes' : 'no';
   for (;;) {
-    const answer = (await readLine(`${label} (${hint}): `)).toLowerCase();
+    const answer = (await readLine(`  y/n, Enter = ${hint} > `)).toLowerCase();
     if (!answer) return defaultYes;
-    if (['y', 'yes'].includes(answer)) return true;
-    if (['n', 'no'].includes(answer)) return false;
-    console.log('  Please type y or n.');
+    if (answer === 'y' || answer === 'yes') return true;
+    if (answer === 'n' || answer === 'no') return false;
+    console.log('      Please type y or n.');
   }
 }
 
 const checkName = (v) =>
   /^[A-Za-z][A-Za-z0-9]*$/.test(v)
     ? null
-    : 'Use letters and digits only, starting with a letter (e.g. MyApp).';
+    : 'Use letters and digits only, starting with a letter. Example: MyApp';
 const checkBundleId = (v) =>
   /^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(v)
     ? null
-    : 'Use the form com.yourname.MyApp (letters, digits, dots and dashes).';
+    : 'Use letters, digits, dots and dashes. Example: com.yourname.MyApp';
 const checkTeamId = (v) =>
   /^[A-Z0-9]{10}$/.test(v)
     ? null
-    : 'A team ID is 10 capital letters or digits, e.g. Z23JXMNT76.';
+    : 'A team ID is 10 capital letters or digits. Example: Z23JXMNT76';
 const checkText = (v) =>
   /[\r\n"']/.test(v) ? 'Avoid quotes and line breaks.' : null;
-
-console.log(
-  'Sets this repo up as a new app. Press Enter to accept the value in brackets.\n',
-);
-
-const name = await ask('App name (one word, no spaces)', {
-  fallback: oldName,
-  check: checkName,
-  help: [
-    'What: the name of the app. It is shown under the icon on the phone and',
-    'used as the Xcode project name by the build scripts.',
-    'Rules: one word, letters and digits only, starting with a letter.',
-    'Nothing to look up. You choose it.',
-  ],
-});
-const bundleId = await ask('iOS bundle ID', {
-  fallback: `com.yourname.${name}`,
-  check: checkBundleId,
-  help: [
-    'What: the unique ID of the app for Apple, written like a reversed web',
-    'address: com.<your name>.<app name>, e.g. com.janedoe.MyApp.',
-    'Nothing to look up. You choose it. It must be unique across all Apple',
-    'developer accounts: if a build says "Bundle identifier is not available",',
-    'change it. It is stored in .env as IOS_BUNDLE_ID.',
-    'More: docs/IPHONE.md#values-in-env',
-  ],
-});
-const teamId = await ask('Apple team ID', {
-  optional: true,
-  check: checkTeamId,
-  help: [
-    'What: the signing team of the Apple ID you install with. A 10-character',
-    'code, e.g. Z23JXMNT76. Leave it empty to let Xcode choose the team.',
-    'Only set it if you have several Apple IDs in Xcode.',
-    'Where to find it: docs/IPHONE.md#apple_team_id.',
-  ],
-});
 const checkTimeZone = (v) => {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: v });
     return null;
   } catch {
-    return 'Use a time zone name such as Europe/Bucharest.';
+    return 'Not a time zone name. Example: Europe/Bucharest';
   }
 };
 
-const username = await ask('Username, shown on the Info tab', {
+// Shows a short list of time zones. Enter takes the first one (this Mac's).
+async function askTimeZone(step) {
+  const macZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const choices = [
+    ...new Set([
+      macZone,
+      'Europe/Bucharest',
+      'Europe/London',
+      'America/New_York',
+      'America/Los_Angeles',
+      'Asia/Tokyo',
+    ]),
+  ].slice(0, 5);
+  const other = choices.length + 1;
+
+  question(step, 'Phone time zone', [
+    "The Info tab shows the build time in this zone. Use your iPhone's zone,",
+    'found in Settings > General > Date & Time.',
+  ]);
+  choices.forEach((zone, index) => {
+    const label = zone === macZone ? `${zone} (this Mac)` : zone;
+    console.log(`      ${index + 1}  ${label}`);
+  });
+  console.log(`      ${other}  Other: type a name`);
+
+  for (;;) {
+    const answer = await readLine(`  Type 1-${other}, Enter = 1 > `);
+    if (!answer) return choices[0];
+    const number = Number(answer);
+    if (Number.isInteger(number) && number >= 1 && number <= choices.length) {
+      return choices[number - 1];
+    }
+    if (number === other) {
+      for (;;) {
+        const typed = await readLine('  Time zone name > ');
+        const problem = checkTimeZone(typed);
+        if (!problem) return typed;
+        console.log(`      ${problem}`);
+      }
+    }
+    console.log(`      Type a number from 1 to ${other}.`);
+  }
+}
+
+console.log('Setup: answer each question. Type a value and press Enter.');
+
+const name = await ask(1, 'App name', {
+  notes: [
+    'One word, letters and digits only. It is the name under the app icon.',
+  ],
+  check: checkName,
+});
+const bundleId = await ask(2, 'iOS bundle ID', {
+  notes: [
+    'A unique ID for Apple, like com.yourname.MyApp.',
+    'If a build says the ID is taken, choose another. Details: docs/IPHONE.md',
+  ],
+  fallback: `com.yourname.${name}`,
+  check: checkBundleId,
+});
+const teamId = await ask(3, 'Apple team ID', {
+  notes: [
+    'The 10-character code of your signing team, e.g. Z23JXMNT76.',
+    'Skip it unless you have several Apple IDs. Where to find it: docs/IPHONE.md',
+  ],
+  optional: true,
+  check: checkTeamId,
+});
+const username = await ask(4, 'Username', {
+  notes: ['Any text. The Info tab shows it.'],
   optional: true,
   check: checkText,
-  help: [
-    'What: any text, e.g. your name. The Info tab shows it, and the app reads it',
-    'as Constants.expoConfig.extra.username. Optional. It does not have to match',
-    'anything at Apple.',
-  ],
 });
-const timeZone = await ask("Your phone's time zone", {
-  fallback: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  check: checkTimeZone,
-  help: [
-    'What: the time zone of your iPhone. The Info tab shows the build time in it.',
-    "Press Enter to use this Mac's time zone, which is the same as the phone's when",
-    'both are in the same place. Otherwise type a name like Europe/Bucharest.',
-    "Your phone's time zone is in Settings > General > Date & Time.",
-  ],
-});
-const keepDemo = await yesNo('Keep the demo screens?', true, [
-  'What: the demo screens in src/demo/ show each device feature with buttons',
-  'to try. Yes: keep them as examples. No: delete them, leaving only the',
-  'Dashboard and Info screens.',
+const timeZone = await askTimeZone(5);
+const keepDemo = await yesNo(6, 'Keep the demo screens?', true, [
+  'Example screens for each phone feature, with buttons to try.',
+  'Remove them later with menu option 9 in: npm run iphone',
 ]);
-const freshGit = await yesNo(
-  "Start with a clean git history (deletes this repo's history)?",
-  true,
-  [
-    'What: git records every commit. This folder has its existing history.',
-    'Yes: delete that history and the link to GitHub, and start',
-    'a new, empty history for your app. This cannot be undone.',
-    'No: keep the history and the link. You can remove the link later with:',
-    'git remote remove origin',
-  ],
-);
 
 console.log('\nThese values will be used:');
-console.log(`  App name:         ${name}`);
-console.log(`  iOS bundle ID:    ${bundleId}`);
-console.log(`  Team ID:          ${teamId || '(Xcode chooses)'}`);
-console.log(`  Username:         ${username || '(not set)'}`);
-console.log(`  Phone time zone: ${timeZone}`);
-console.log(`  Demo screens:     ${keepDemo ? 'kept' : 'removed'}`);
-console.log(`  Git history:      ${freshGit ? 'fresh' : 'kept'}`);
-console.log('  .env will be overwritten.\n');
+const summary = [
+  ['App name', name],
+  ['iOS bundle ID', bundleId],
+  ['Apple team ID', teamId || '(Xcode chooses)'],
+  ['Username', username || '(not set)'],
+  ['Phone time zone', timeZone],
+  ['Demo screens', keepDemo ? 'kept' : 'removed'],
+];
+for (const [label, value] of summary) {
+  console.log(`  ${label.padEnd(18)}${value}`);
+}
+console.log('  .env will be overwritten.');
 
-if (!(await yesNo('Apply these values?', true))) {
+if (!(await confirm('Apply these values?'))) {
   rl.close();
   console.log('Nothing changed.');
   process.exit(0);
@@ -251,7 +269,7 @@ const pkg = readJson('package.json');
 pkg.name = name.toLowerCase();
 writeJson('package.json', pkg);
 
-// 3. .env, read by app.config.ts.
+// 3. .env, read by app.config.ts and the build info script.
 writeText(
   '.env',
   [
@@ -289,13 +307,7 @@ writeJson(BUILD_INFO, {
 // 5. Demo screens.
 applyDemoChoice(keepDemo);
 
-// 6. Fresh git history.
-if (freshGit) {
-  rmSync(toPath('.git'), { recursive: true, force: true });
-  git('init', '--quiet');
-}
-
-// 7. README for the new app.
+// 6. README for the new app.
 writeText(
   'README.md',
   `# ${name}
@@ -316,12 +328,8 @@ Setup, signing and troubleshooting: [docs/IPHONE.md](docs/IPHONE.md).
 );
 
 console.log(`
-Done. Next steps:
-  npm run iphone   then choose 2 to install the app on your iPhone and open it
-${renamedNote()}`);
-
-function renamedNote() {
-  return oldName !== name
-    ? `\nRenamed ${oldName} to ${name} in the tracked files.`
-    : '';
+Done. Next step:
+  npm run iphone   then choose 2 to install the app on your iPhone and open it`);
+if (oldName !== name) {
+  console.log(`\nRenamed ${oldName} to ${name} in the tracked files.`);
 }
