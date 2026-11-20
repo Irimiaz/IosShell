@@ -59,6 +59,19 @@ The menu:
 | 7      | Rebuild the iOS project from scratch, when the build fails in a strange way                                      |
 | 8      | Ask the setup questions again                                                                                    |
 | 9      | Remove the demo screens. Asks you to confirm first. The libraries stay                                           |
+| 10     | Clean build: clears all caches, recreates `ios/`, then installs without opening. Slower. Use it when nothing else works |
+
+## Another iPhone
+
+- **Same Apple ID as before:** nothing to change. Pair the new iPhone (a cable the first time, then Wi-Fi works too), do its one-time setup (Developer Mode, Trust), and choose **2**.
+- **A different Apple ID:** edit `.env` by hand, rather than running `npm run setup` again (setup also rewrites other files):
+  1. Sign in to that Apple ID in Xcode and let it create its certificate.
+  2. Get its team ID with the command in the [iPhone guide](docs/IPHONE.md#apple_team_id), and set `APPLE_TEAM_ID` in `.env`.
+  3. Keep `IOS_BUNDLE_ID` only if that Apple ID can register it. If a build says the ID is taken, set a new `com.<something>.<app name>`.
+  4. Connect the new iPhone, do its one-time setup, and choose **2**. Trust the app on the phone.
+- To build for your own phone again, put your values back in `.env` and choose **2**.
+
+Each phone needs a valid signing team. For a phone with another Apple ID, see [Another iPhone](docs/IPHONE.md#another-iphone). To send the app to someone without any of this, use menu choice **4**.
 
 ## Something doesn't connect
 
