@@ -7,7 +7,7 @@
 //   npm run setup
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
@@ -152,7 +152,8 @@ const bundleId = await ask(2, 'iOS bundle ID', {
     'A unique ID for Apple, like com.yourname.MyApp.',
     'If a build says the ID is taken, choose another. Details: docs/IPHONE.md',
   ],
-  fallback: `com.yourname.${name}`,
+  // A random middle part keeps the default unique, since Apple rejects IDs already taken.
+  fallback: `com.${Math.random().toString(36).slice(2, 10)}.${name}`,
   check: checkBundleId,
 });
 const teamId = await ask(3, 'Apple team ID', {
@@ -160,6 +161,7 @@ const teamId = await ask(3, 'Apple team ID', {
     'The 10-character code of your signing team, e.g. Z23JXMNT76.',
     'To find it, paste this in another terminal',
     'and look for OU=... in the output (the code after OU= is the team ID):',
+    '',
     String.raw`security find-certificate -a -c "Apple Development" -p | awk 'BEGIN{c=""} /BEGIN CERTIFICATE/{c=""} {c=c $0 "\n"} /END CERTIFICATE/{printf "%s", c | "openssl x509 -noout -subject"; close("openssl x509 -noout -subject")}'`,
   ],
   check: checkTeamId,
