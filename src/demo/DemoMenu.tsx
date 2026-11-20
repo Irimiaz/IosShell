@@ -11,6 +11,8 @@ type DemoItem = {
   icon: IconName;
   title: string;
   description: string;
+  // True when the demo needs a real iPhone and does not work in the Simulator.
+  needsPhone?: boolean;
 };
 
 // The demos, grouped. Each one is a screen in the demo flow.
@@ -49,6 +51,7 @@ const sections: { title: string; items: DemoItem[] }[] = [
       },
       {
         screen: 'demo.haptics',
+        needsPhone: true,
         icon: 'pulse',
         title: 'Haptics & vibration',
         description: 'Taps and buzzes for feedback.',
@@ -66,6 +69,7 @@ const sections: { title: string; items: DemoItem[] }[] = [
     items: [
       {
         screen: 'demo.security',
+        needsPhone: true,
         icon: 'finger-print',
         title: 'Security',
         description: 'Face ID, Touch ID or PIN before an action.',
@@ -78,6 +82,7 @@ const sections: { title: string; items: DemoItem[] }[] = [
       },
       {
         screen: 'demo.camera',
+        needsPhone: true,
         icon: 'camera',
         title: 'Camera & photos',
         description: 'Take or pick a photo, and save it to your Photos app.',
@@ -90,6 +95,7 @@ const sections: { title: string; items: DemoItem[] }[] = [
       },
       {
         screen: 'demo.scan',
+        needsPhone: true,
         icon: 'scan',
         title: 'Scan QR code',
         description: 'Scan codes. Document codes become a PDF.',
@@ -127,9 +133,16 @@ export function DemoMenu() {
                     <Ionicons name={item.icon} size={20} color="#171717" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-base font-semibold text-neutral-900">
-                      {item.title}
-                    </Text>
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-base font-semibold text-neutral-900">
+                        {item.title}
+                      </Text>
+                      {item.needsPhone && (
+                        <Text className="rounded-md bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-600">
+                          Needs iPhone
+                        </Text>
+                      )}
+                    </View>
                     <Text className="text-xs text-neutral-500">
                       {item.description}
                     </Text>
