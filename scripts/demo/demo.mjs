@@ -1,5 +1,5 @@
 // Keeps or removes the demo screens. Used by `npm run setup` and by
-// scripts/remove-demo.mjs, so both do exactly the same thing.
+// scripts/demo/remove-demo.mjs, so both do exactly the same thing.
 //
 // The demo is the src/demo folder, plus the lines in the files below that sit
 // between the comments "demo:start" and "demo:end". Those comments stay in

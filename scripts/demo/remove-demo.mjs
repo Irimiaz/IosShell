@@ -7,7 +7,7 @@ import { existsSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { join } from 'node:path';
 
-import { applyDemoChoice, root } from './lib/demo.mjs';
+import { applyDemoChoice, root } from './demo.mjs';
 
 if (!existsSync(join(root, 'src', 'demo'))) {
   console.log('The demo is already removed. Nothing to do.');

@@ -64,7 +64,7 @@ const tasks = [
     key: '9',
     title: 'Remove the demo screens',
     when: 'Deletes src/demo/ and its links in the menu and tabs. The libraries stay. Asks you to confirm first.',
-    command: ['node', ['scripts/remove-demo.mjs']],
+    command: ['node', ['scripts/demo/remove-demo.mjs']],
   },
 ];
 

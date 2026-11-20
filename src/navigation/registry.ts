@@ -6,7 +6,7 @@
 // - To add a screen: write the component (its `data` prop type is the screen's
 //   data type), then add it under a flow below.
 // demo:start
-// - `scripts/remove-demo.mjs` removes the demo. By hand: delete src/demo/ and the lines
+// - `scripts/demo/remove-demo.mjs` removes the demo. By hand: delete src/demo/ and the lines
 //   between the demo comment markers below.
 // demo:end
 

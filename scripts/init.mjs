@@ -12,7 +12,7 @@ import { dirname, extname, join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
-import { applyDemoChoice } from './lib/demo.mjs';
+import { applyDemoChoice } from './demo/demo.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const toPath = (rel) => join(root, rel);
@@ -211,7 +211,9 @@ const bundleId = await ask(2, 'iOS bundle ID', {
 const teamId = await ask(3, 'Apple team ID', {
   notes: [
     'The 10-character code of your signing team, e.g. Z23JXMNT76.',
-    'Skip it unless you have several Apple IDs. Where to find it: docs/IPHONE.md',
+    'Skip it to let Xcode choose. To find it, paste this in another terminal',
+    'and look for OU=... in the output (the code after OU= is the team ID):',
+    String.raw`security find-certificate -a -c "Apple Development" -p | awk 'BEGIN{c=""} /BEGIN CERTIFICATE/{c=""} {c=c $0 "\n"} /END CERTIFICATE/{printf "%s", c | "openssl x509 -noout -subject"; close("openssl x509 -noout -subject")}'`,
   ],
   optional: true,
   check: checkTeamId,
