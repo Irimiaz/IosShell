@@ -97,19 +97,19 @@ You should see your `IOS_BUNDLE_ID` and `APPLE_TEAM_ID`. If not, check `.env` fo
 
 ## Install on your iPhone
 
-### Option 3: install without opening (`npm run iphone`, option 3)
+### Option 2: install without opening (`npm run iphone`, option 2)
 
-Use this to get the app on the phone now and start the dev server later.
+Recommended, and use it first. It gets the app on the phone now, and you start the dev server later.
 
 1. Stop `npm start` if it is running. Regenerating `ios/` fails while the dev server watches the project.
-2. Install: `npm run iphone` (option 3)
+2. Install: `npm run iphone` (option 2)
 3. Start the dev server and open the app on the phone: `npm start`
 
 If two iPhones are connected, pass the UDID: `bash scripts/iphone/install.sh <UDID>`. List UDIDs with `xcrun devicectl list devices`.
 
-### Option 2: install and open (`npm run iphone`, option 2)
+### Option 3: install and open (`npm run iphone`, option 3)
 
-1. Run `npm run iphone` (option 2). It regenerates `ios/` when the config changed, then builds and installs on the connected iPhone. If more than one phone is connected, it asks which one to use.
+1. Run `npm run iphone` (option 3). It regenerates `ios/` when the config changed, then builds and installs on the connected iPhone. If more than one phone is connected, it asks which one to use.
 2. The first launch may be blocked. On the iPhone go to **Settings → General → VPN & Device Management**, tap your Apple ID under "Developer App", then tap **Trust**. Open the app again.
 3. Run `npm start` to load JavaScript changes. The cable is needed only to reinstall native changes.
 

@@ -276,7 +276,7 @@ Setup, signing and troubleshooting: [docs/IPHONE.md](docs/IPHONE.md).
 
 console.log(`
 Done. Next step:
-  npm run iphone   then choose 2 to install the app on your iPhone and open it`);
+  npm run iphone   then choose 2 to install the app on your iPhone, then choose 1 and open the app on the phone.`);
 if (oldName !== name) {
   console.log(`\nRenamed ${oldName} to ${name} in the tracked files.`);
 }

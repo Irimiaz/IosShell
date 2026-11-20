@@ -22,7 +22,7 @@ An Expo starter for iPhone apps. It comes with navigation, a demo of the phone f
 1. Create your repo with GitHub's **Use this template** button, then clone it. Or clone this repo with `git clone`.
 2. Install the dependencies: `npm install`
 3. Set up the app: `npm run setup`. It asks a few questions (name, bundle ID, team, username, demo) and writes `.env` and `app.json`. Answer **yes** to keep the demo, so you can test it.
-4. Open the menu: `npm run iphone`. Choose **2** to install the app on your iPhone and open it, then test the demo.
+4. Open the menu: `npm run iphone`. Choose **2** to install the app on your iPhone. Then choose **1** to start the dev server, open the app on the phone, and test the demo.
 5. The first time, trust the app on the iPhone. See [Trust the app](#trust-the-app).
 6. When you are done testing, open the menu again and choose **9** to remove the demo.
 7. Commit and push your changes.
@@ -51,8 +51,8 @@ The menu:
 | Choice | What it does                                                                                                     |
 | ------ | ---------------------------------------------------------------------------------------------------------------- |
 | 1      | Start the dev server. Keep it running while you use the app on the phone                                         |
-| 2      | Install and open the app on the phone. Use it first, and after changing `.env`, `app.json` or a native package   |
-| 3      | Install the app without opening it. The app shows an error until option 1 is running, so use option 2 to open it |
+| 2      | Use it first, and after changing `.env`, `app.json` or a native package. Installs without opening. Recommended   |
+| 3      | Install and open the app on the phone, and start the dev server. Use it to open the app right away               |
 | 4      | Make a `.ipa` file to send to someone else                                                                       |
 | 5      | Start the dev server through a tunnel, when the phone and Mac are on different networks                          |
 | 6      | Check the code                                                                                                   |

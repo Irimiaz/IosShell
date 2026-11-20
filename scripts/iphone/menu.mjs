@@ -19,15 +19,15 @@ const tasks = [
     command: ['npx', ['expo', 'start']],
   },
   {
-    key: '2',
+    key: '3',
     title: 'Install and open the app on the iPhone',
-    when: 'Use it the first time, and after changing .env, app.json or a native package. It also starts the dev server.',
+    when: 'Installs and opens the app now, and starts the dev server. Use it to open the app right away.',
     command: ['bash', ['scripts/iphone/run.sh']],
   },
   {
-    key: '3',
+    key: '2',
     title: 'Install the app without opening it',
-    when: 'Puts the app on the phone now. Open it later, with option 1 running.',
+    when: 'Use it first, and after changing .env, app.json or a native package. Puts the app on the phone now. Open it later, with option 1 running.',
     command: ['bash', ['scripts/iphone/install.sh']],
   },
   {
