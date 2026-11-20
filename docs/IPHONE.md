@@ -33,7 +33,7 @@ Do this once per Mac, and once per iPhone.
 - Command Line Tools: `xcode-select --install`
 - Node.js LTS (18 or newer) and npm
 - CocoaPods. `expo prebuild` installs it if it is missing, or install it with `brew install cocoapods`.
-- An Apple ID added in Xcode: **Xcode → Settings → Accounts → +**. A free Apple ID is enough for installing on your own phone.
+- An Apple ID signed in to Xcode. See [APPLE_TEAM_ID](#apple_team_id) for how. A free Apple ID is enough for installing on your own phone.
 - An iPhone on a supported iOS version, connected with a USB or USB-C cable.
 
 ### Steps
@@ -71,15 +71,15 @@ Leave it empty to let Xcode choose the team. Set it when you have several Apple 
 
 The team ID is written as `OU=` in the certificate that Xcode creates for each Apple ID. Your Mac needs that certificate first:
 
-1. Add the Apple ID in **Xcode → Settings → Accounts → +**.
-2. Create the certificate. If you have not signed anything with that Apple ID yet, run `npm run iphone` (option 7), open `ios/<app name>.xcworkspace` in Xcode, select the app target → **Signing & Capabilities**, and choose the team. Xcode creates the certificate.
-3. Print the team IDs of your Apple Development certificates:
+1. **Sign in to your Apple ID in Xcode.** Run `npm run iphone` (option 2 or 7) so that `ios/` exists. Then run `open ios/<app name>.xcworkspace`, select the app target, open **Signing & Capabilities**, click the **Team** menu, and choose **Add an Account…**. Sign in there. If your Xcode has **Xcode → Settings → Accounts**, that works too.
+2. **Create the certificate.** In the same **Signing & Capabilities** tab, choose your team from the **Team** menu. Xcode creates the certificate.
+3. **Get the team ID.** Paste this command into another terminal:
 
    ```bash
    security find-certificate -a -c "Apple Development" -p | awk 'BEGIN{c=""} /BEGIN CERTIFICATE/{c=""} {c=c $0 "\n"} /END CERTIFICATE/{printf "%s", c | "openssl x509 -noout -subject"; close("openssl x509 -noout -subject")}'
    ```
 
-   Each line ends with `OU=<team id>`. The `CN=` part shows which Apple ID it belongs to. Copy the `OU=` value for the Apple ID you want.
+   Each line ends with `OU=<team id>`. The `CN=` part shows which Apple ID it belongs to. Copy the `OU=` value for the Apple ID you want, and put it in `.env` as `APPLE_TEAM_ID`. Setup shows the same command in its team ID question.
 
 If the command prints nothing, step 2 has not run yet. Paid Apple Developer accounts also show the team ID at **developer.apple.com → Account → Membership details**.
 
@@ -120,6 +120,10 @@ If two iPhones are connected, pass the UDID: `bash scripts/iphone/install.sh <UD
 
 `npm run iphone` (option 7) rebuilds `ios/` from scratch. You rarely need it, because options 2 and 3 rebuild `ios/` on their own when the config changed.
 
+### Trust the app
+
+The first time a new app is installed, iOS asks you to trust its developer, and the app won't open until you do. On the iPhone, go to **Settings → General → VPN & Device Management**. Under **Developer App**, tap your Apple ID, then tap **Trust**. Open the app again.
+
 ## Run the dev server
 
 The JavaScript loads over the network from the Metro dev server on your Mac.
@@ -147,7 +151,7 @@ No code changes needed.
 
 The bundle identifier and signing team must belong to that Apple ID.
 
-1. Add that Apple ID under **Xcode → Settings → Accounts**.
+1. Sign in to that Apple ID in Xcode, as in [APPLE_TEAM_ID](#apple_team_id), step 1.
 2. In `.env`, set `IOS_BUNDLE_ID` and `APPLE_TEAM_ID` for that Apple ID (see [Values in .env](#values-in-env)).
 3. Connect the other iPhone, do its one-time setup, then run `npm run iphone` (option 2).
 4. Trust the app on that phone as in Case A, step 4.
@@ -277,6 +281,8 @@ Find the part of the error message you see, and follow its steps. Values in `.en
 - If `node_modules` seems broken: `rm -rf node_modules && npm install`
 
 ### Metro and networking
+
+**Local Network permission.** iOS blocks the connection until you allow it. Go to **Settings → Privacy & Security → Local Network** and turn on your app. Open the app again after changing it.
 
 **The app loads but shows "Unable to connect to Metro" or a blank screen**
 
