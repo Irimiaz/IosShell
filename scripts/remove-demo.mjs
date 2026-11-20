@@ -29,7 +29,12 @@ if (answer !== 'y' && answer !== 'yes') {
   process.exit(0);
 }
 
-applyDemoChoice(false);
+try {
+  applyDemoChoice(false);
+} catch (error) {
+  console.log(error.message);
+  process.exit(1);
+}
 console.log(
   'Demo removed. Dashboard and Info are still there. The libraries in package.json were kept.',
 );
