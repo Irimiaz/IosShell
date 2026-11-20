@@ -1,4 +1,4 @@
-# IosShell template
+# IOS template
 
 An Expo starter for iPhone apps. It comes with navigation, a demo of the phone features, and a menu that builds and installs the app on your iPhone.
 
