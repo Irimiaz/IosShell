@@ -5,13 +5,22 @@
 // - A screen's route name is `<flow>.<screen>`, e.g. `dashboard.main`.
 // - To add a screen: write the component (its `data` prop type is the screen's
 //   data type), then add it under a flow below.
+// - To remove the demo: delete src/demo/, then delete the `demo` flow and its
+//   entry in `navFlows` below.
 
 import type { ComponentType } from 'react';
 
+import {
+  CameraDemo,
+  CreateQrDemo,
+  DemoMenu,
+  NotificationsDemo,
+  ScanDemo,
+  SecurityDemo,
+  ShareDemo,
+} from '../demo';
 import { Build } from '../screens/Build';
 import { Dashboard } from '../screens/Dashboard';
-import { Profile } from '../screens/Profile';
-import { Settings } from '../screens/Settings';
 import type { ScreenProps } from '../types/screen';
 
 export const flows = {
@@ -23,16 +32,16 @@ export const flows = {
       main: Dashboard,
     },
   },
-  profile: {
+  demo: {
     initial: 'main',
     screens: {
-      main: Profile,
-    },
-  },
-  settings: {
-    initial: 'main',
-    screens: {
-      main: Settings,
+      main: DemoMenu,
+      security: SecurityDemo,
+      notifications: NotificationsDemo,
+      camera: CameraDemo,
+      share: ShareDemo,
+      scan: ScanDemo,
+      createQr: CreateQrDemo,
     },
   },
   build: {
@@ -50,9 +59,8 @@ export type FlowName = Exclude<keyof Flows, 'initial'>;
 // The flows shown in the navigation layouts (drawer menu and bottom bar).
 export const navFlows: { flow: FlowName; label: string }[] = [
   { flow: 'dashboard', label: 'Dashboard' },
-  { flow: 'profile', label: 'Profile' },
-  { flow: 'settings', label: 'Settings' },
-  { flow: 'build', label: 'Build' },
+  { flow: 'demo', label: 'Demo' },
+  { flow: 'build', label: 'Info' },
 ];
 
 export type ScreenName = {

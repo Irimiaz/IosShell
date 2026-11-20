@@ -19,8 +19,7 @@ const icons: Partial<
   >
 > = {
   dashboard: { active: 'grid', inactive: 'grid-outline' },
-  profile: { active: 'person', inactive: 'person-outline' },
-  settings: { active: 'settings', inactive: 'settings-outline' },
+  demo: { active: 'flask', inactive: 'flask-outline' },
   build: { active: 'hammer', inactive: 'hammer-outline' },
 };
 
