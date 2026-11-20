@@ -31,7 +31,7 @@ export function DeviceSecurityGate({ children }: { children: ReactNode }) {
   if (status === 'secured') return children;
 
   if (status === 'checking') {
-    return <View style={{ flex: 1, backgroundColor: '#F5F5DC' }} />;
+    return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
   }
 
   return (

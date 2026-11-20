@@ -19,9 +19,9 @@ const CORE_SIZE = 84;
 const RIPPLE_AREA = CORE_SIZE * 2.8;
 // Size of the icon inside the core.
 const ICON_SIZE = 36;
-// Accent colours. Warm, so they stand out on the red screen.
-const ACCENT = '#FFD54F';
-const ICON_COLOR = '#4E2A04';
+// Accent colours. Dark, so they stand out on the white screen.
+const ACCENT = '#171717';
+const ICON_COLOR = '#FFFFFF';
 // Pulling past this fraction of the screen width goes back on release.
 const COMMIT_FRACTION = 0.3;
 
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   ring: {
     position: 'absolute',
     borderWidth: 2.5,
-    borderColor: 'rgba(255, 255, 255, 0.9)',
+    borderColor: 'rgba(23, 23, 23, 0.6)',
   },
   core: {
     position: 'absolute',

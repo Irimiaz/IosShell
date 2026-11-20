@@ -5,20 +5,31 @@
 // - A screen's route name is `<flow>.<screen>`, e.g. `dashboard.main`.
 // - To add a screen: write the component (its `data` prop type is the screen's
 //   data type), then add it under a flow below.
-// - To remove the demo: delete src/demo/, then delete the `demo` flow and its
-//   entry in `navFlows` below.
+// demo:start
+// - `scripts/remove-demo.mjs` removes the demo. By hand: delete src/demo/ and the lines
+//   between the demo comment markers below.
+// demo:end
 
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+import type { Ionicons } from '@expo/vector-icons';
 
+// demo:start
 import {
+  AlertsDemo,
   CameraDemo,
   CreateQrDemo,
   DemoMenu,
+  DeviceDemo,
+  HapticsDemo,
+  KeyboardDemo,
+  LinksDemo,
   NotificationsDemo,
+  ReloadDemo,
   ScanDemo,
   SecurityDemo,
   ShareDemo,
 } from '../demo';
+// demo:end
 import { Build } from '../screens/Build';
 import { Dashboard } from '../screens/Dashboard';
 import type { ScreenProps } from '../types/screen';
@@ -32,6 +43,7 @@ export const flows = {
       main: Dashboard,
     },
   },
+  // demo:start
   demo: {
     initial: 'main',
     screens: {
@@ -42,8 +54,15 @@ export const flows = {
       share: ShareDemo,
       scan: ScanDemo,
       createQr: CreateQrDemo,
+      device: DeviceDemo,
+      reload: ReloadDemo,
+      links: LinksDemo,
+      keyboard: KeyboardDemo,
+      haptics: HapticsDemo,
+      alerts: AlertsDemo,
     },
   },
+  // demo:end
   build: {
     initial: 'main',
     screens: {
@@ -54,13 +73,35 @@ export const flows = {
 
 type Flows = typeof flows;
 
+type IconName = ComponentProps<typeof Ionicons>['name'];
+
 export type FlowName = Exclude<keyof Flows, 'initial'>;
 
-// The flows shown in the navigation layouts (drawer menu and bottom bar).
-export const navFlows: { flow: FlowName; label: string }[] = [
-  { flow: 'dashboard', label: 'Dashboard' },
-  { flow: 'demo', label: 'Demo' },
-  { flow: 'build', label: 'Info' },
+// Icon names for a flow: the outline one, and the filled one when it is selected.
+type NavIcon = { active: IconName; inactive: IconName };
+
+// The flows shown in the navigation layouts (sidebar and bottom bar).
+export const navFlows: { flow: FlowName; label: string; icon: NavIcon }[] = [
+  {
+    flow: 'dashboard',
+    label: 'Dashboard',
+    icon: { active: 'grid', inactive: 'grid-outline' },
+  },
+  // demo:start
+  {
+    flow: 'demo',
+    label: 'Demo',
+    icon: { active: 'flask', inactive: 'flask-outline' },
+  },
+  // demo:end
+  {
+    flow: 'build',
+    label: 'Info',
+    icon: {
+      active: 'information-circle',
+      inactive: 'information-circle-outline',
+    },
+  },
 ];
 
 export type ScreenName = {

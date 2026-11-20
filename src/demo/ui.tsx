@@ -5,16 +5,35 @@ import { Ionicons } from '@expo/vector-icons';
 // Shared look of the demo screens. Delete this folder together with the demo.
 
 // The style of every text box on the demo screens.
-export const inputClass = 'rounded-xl bg-white px-3 py-3 text-base text-black';
+export const inputClass =
+  'rounded-xl border border-neutral-300 bg-white px-3 py-3 text-base text-neutral-900';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 // The title at the top of a screen.
 export function Heading({ children }: { children: ReactNode }) {
   return (
-    <Text className="text-center text-2xl font-bold text-white">
+    <Text className="text-center text-2xl font-bold text-neutral-900">
       {children}
     </Text>
+  );
+}
+
+// A titled set of cards.
+export function Group({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <View className="gap-3">
+      <Text className="px-1 text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        {title}
+      </Text>
+      {children}
+    </View>
   );
 }
 
@@ -29,16 +48,16 @@ export function Card({
   icon: IconName;
   title: string;
   description: string;
-  action: ReactNode;
+  action?: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <View className="gap-3 rounded-2xl bg-white/10 p-4">
+    <View className="gap-3 rounded-2xl bg-neutral-100 p-4">
       <View className="flex-row items-center gap-2">
-        <Ionicons name={icon} size={20} color="#FFFFFF" />
-        <Text className="text-lg font-bold text-white">{title}</Text>
+        <Ionicons name={icon} size={20} color="#171717" />
+        <Text className="text-lg font-bold text-neutral-900">{title}</Text>
       </View>
-      <Text className="text-sm leading-5 text-white/80">{description}</Text>
+      <Text className="text-sm leading-5 text-neutral-600">{description}</Text>
       {action}
       {children}
     </View>
@@ -60,10 +79,10 @@ export function ActionButton({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      className={`items-center rounded-xl py-3 active:opacity-80 ${solid ? 'bg-white' : 'bg-white/20'}`}
+      className={`items-center rounded-xl py-3 active:opacity-80 ${solid ? 'bg-neutral-900' : 'border border-neutral-300 bg-white'}`}
     >
       <Text
-        className={`text-base font-semibold ${solid ? 'text-black' : 'text-white'}`}
+        className={`text-base font-semibold ${solid ? 'text-white' : 'text-neutral-900'}`}
       >
         {title}
       </Text>
@@ -72,5 +91,17 @@ export function ActionButton({
 }
 
 export function Label({ children }: { children: ReactNode }) {
-  return <Text className="text-sm text-white/80">{children}</Text>;
+  return <Text className="text-sm text-neutral-600">{children}</Text>;
+}
+
+// A label and its value, one under the other.
+export function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="gap-0.5">
+      <Text className="text-xs text-neutral-500">{label}</Text>
+      <Text selectable className="text-base text-neutral-900">
+        {value}
+      </Text>
+    </View>
+  );
 }

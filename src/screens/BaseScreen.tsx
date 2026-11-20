@@ -24,7 +24,7 @@ const FIELD_MARGIN = 16;
 // - Keyboard avoiding is on, and tapping empty space closes the keyboard.
 //   When the keyboard opens, the screen scrolls only if the focused field is hidden.
 // - Content is kept clear of the notch, status bar and home indicator.
-// - Background is beige (#F5F5DC) and fills the whole screen.
+// - Background is white and fills the whole screen.
 // - Pull to refresh is off by default. With `pullToRefresh`, pulling down runs
 //   `onRefresh`, which should re-run the screen's requests. The spinner stops
 //   when `onRefresh` finishes (or fails).
@@ -38,8 +38,6 @@ export function BaseScreen({
   onRefresh?: () => void | Promise<void>;
 }) {
   const insets = useSafeAreaInsets();
-  const midRed = '#E53935';
-  const darkRed = '#B71C1C';
   const [refreshing, setRefreshing] = useState(false);
   const scrollRef = useRef<ScrollViewInstance>(null);
   const scrollOffset = useRef(0);
@@ -73,7 +71,7 @@ export function BaseScreen({
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: midRed }}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -84,7 +82,7 @@ export function BaseScreen({
             scrollOffset.current = event.nativeEvent.contentOffset.y;
           }}
           scrollEventThrottle={16}
-          style={{ flex: 1, backgroundColor: darkRed }}
+          style={{ flex: 1, backgroundColor: '#FFFFFF' }}
           // Safe-area padding only. The spacing for content is set on the
           // inner View below, so the two don't override each other.
           contentContainerStyle={[
@@ -108,7 +106,7 @@ export function BaseScreen({
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={refresh}
-                tintColor="#FFFFFF"
+                tintColor="#171717"
               />
             ) : undefined
           }

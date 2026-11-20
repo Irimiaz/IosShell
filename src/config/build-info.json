@@ -2,12 +2,12 @@
   "appName": "IosShell",
   "bundleVersion": "1.0.0",
   "packageVersion": "1.0.0",
-  "buildNumber": "28",
-  "gitCommit": "ebe381d",
+  "buildNumber": "29",
+  "gitCommit": "dbd9722",
   "gitBranch": "Refactor",
   "gitDirty": "yes",
   "configuration": "Debug",
-  "builtAtIso": "2026-11-20T08:06:14.373Z",
-  "builtAtRomania": "20 nov. 2026, 10:06:14",
+  "builtAtIso": "2026-11-20T08:23:36.174Z",
+  "builtAtRomania": "20 nov. 2026, 10:23:36",
   "nodeVersion": "v26.13.1"
 }

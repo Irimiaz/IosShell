@@ -6,9 +6,7 @@ export function Dashboard() {
   return (
     <BaseScreen>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-2xl font-bold text-black dark:text-white">
-          Dashboard
-        </Text>
+        <Text className="text-2xl font-bold text-neutral-900">Dashboard</Text>
       </View>
     </BaseScreen>
   );

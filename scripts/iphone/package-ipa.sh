@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build a self-contained Release app and package it as an UNSIGNED .ipa.
+# Builds a Release app and packages it as an UNSIGNED .ipa file to send to someone else.
 #
 # The JavaScript is bundled inside the app, so it does not need `npm start`
 # or the Mac once installed. The .ipa is not signed with any Apple ID; the
 # person installing it signs it with their own Apple ID (e.g. with Sideloadly).
 #
 # Usage:
-#   scripts/build-unsigned-ipa.sh
+#   scripts/iphone/package-ipa.sh
 #
 # Output: dist/IosShell-unsigned.ipa
 
@@ -14,17 +14,18 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 
-SCHEME="IosShell"
-WORKSPACE="ios/IosShell.xcworkspace"
+# The app name in app.json is also the Xcode scheme and project name.
+SCHEME="$(node -p "require('./app.json').expo.name")"
+WORKSPACE="ios/$SCHEME.xcworkspace"
 DERIVED_DATA="ios/build-release"
 APP_PATH="$DERIVED_DATA/Build/Products/Release-iphoneos/$SCHEME.app"
 OUT_DIR="dist"
 IPA_PATH="$OUT_DIR/$SCHEME-unsigned.ipa"
 
-bash scripts/build/ensure-prebuild.sh
+bash scripts/iphone/lib/ensure-native.sh
 
 # Record this build's details for the Build tab in the app.
-node scripts/build/write-build-info.mjs Release
+node scripts/iphone/lib/write-build-info.mjs Release
 
 echo "== Building Release (unsigned) =="
 xcodebuild \
@@ -56,4 +57,4 @@ rm -rf "$STAGE"
 
 echo
 echo "Done: $(pwd)/$IPA_PATH"
-echo "Send this file to the other person. They install it with Sideloadly (see scripts/build/ipa-sideload.md)."
+echo "Send this file to the other person. They install it with Sideloadly (see docs/IPHONE.md, Send the app to someone else)."

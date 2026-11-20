@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Prints a fingerprint of every input that changes the generated ios/ project:
 # IOS_BUNDLE_ID and APPLE_TEAM_ID from .env, plus app.json and app.config.ts.
-# prebuild stores this in ios/.prebuild-stamp; if it differs, the project is regenerated.
+# regenerate.sh stores this in ios/.prebuild-stamp; if it differs, ios/ is rebuilt.
 
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 
 # Same precedence as Expo: a variable already set in the shell wins over .env.
 read_env() {

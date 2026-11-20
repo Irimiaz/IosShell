@@ -1,15 +1,15 @@
 // Writes src/config/build-info.json with the details of the build that is
 // about to run. Called by the build scripts before xcodebuild.
 //
-//   node scripts/build/write-build-info.mjs Debug
-//   node scripts/build/write-build-info.mjs Release
+//   node scripts/iphone/lib/write-build-info.mjs Debug
+//   node scripts/iphone/lib/write-build-info.mjs Release
 
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const configuration = process.argv[2] ?? 'Debug';
 
 function git(command) {

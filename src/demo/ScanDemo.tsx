@@ -59,7 +59,7 @@ export function ScanDemo() {
           }
         >
           {scanned !== undefined && (
-            <Text selectable className="text-base text-white">
+            <Text selectable className="text-base text-neutral-900">
               {scanned}
             </Text>
           )}

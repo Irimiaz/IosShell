@@ -70,7 +70,7 @@ export function CreateQrDemo() {
               />
 
               <Text
-                className={`text-sm ${qrTooLong ? 'font-bold text-yellow-200' : 'text-white/80'}`}
+                className={`text-sm ${qrTooLong ? 'font-bold text-amber-700' : 'text-neutral-600'}`}
               >
                 {qrBytes} / {qrLimit} bytes at level {qrLevel}
                 {qrTooLong
@@ -88,11 +88,11 @@ export function CreateQrDemo() {
                       accessibilityRole="button"
                       accessibilityState={{ selected }}
                       onPress={() => setQrLevel(level)}
-                      className={`flex-1 items-center rounded-xl py-2.5 ${selected ? 'bg-white' : 'bg-white/20'}`}
+                      className={`flex-1 items-center rounded-xl py-2.5`}
                     >
                       <Text
                         className={
-                          selected ? 'font-bold text-black' : 'text-white'
+                          selected ? 'font-bold text-white' : 'text-neutral-900'
                         }
                       >
                         {level}
@@ -127,22 +127,22 @@ export function CreateQrDemo() {
                 </View>
               </View>
               {(!isHexColor(qrDark) || !isHexColor(qrLight)) && (
-                <Text className="text-sm text-yellow-200">
+                <Text className="text-sm text-amber-700">
                   Colours must look like #1A2B3C. Black and white are used until
                   they do.
                 </Text>
               )}
 
               {qrError ? (
-                <Text className="text-sm font-bold text-yellow-200">
+                <Text className="text-sm font-bold text-amber-700">
                   {qrError}
                 </Text>
               ) : qrContent.length === 0 ? (
-                <Text className="text-center text-white/80">
+                <Text className="text-center text-neutral-600">
                   Type something to create a code.
                 </Text>
               ) : qrTooLong ? null : (
-                <View className="items-center rounded-2xl bg-white p-5">
+                <View className="items-center rounded-2xl border border-neutral-200 bg-white p-5">
                   <QRCode
                     value={qrValue}
                     size={240}

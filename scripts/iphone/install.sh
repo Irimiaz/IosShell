@@ -1,24 +1,25 @@
 #!/usr/bin/env bash
-# Build the Debug app and install it on the connected iPhone, WITHOUT launching it.
-# Afterwards, start the dev server with `npm start` and open the app on the phone.
+# Builds the app and installs it on the connected iPhone, WITHOUT opening it.
+# Afterwards, run `npm start` and open the app on the phone (or run.sh opens it for you).
 #
 # Usage:
-#   scripts/build/install-no-launch.sh            use the only connected iPhone
-#   scripts/build/install-no-launch.sh <UDID>     pick a specific iPhone
+#   scripts/iphone/install.sh            use the only connected iPhone
+#   scripts/iphone/install.sh <UDID>     pick a specific iPhone
 
 set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 
-SCHEME="IosShell"
-WORKSPACE="ios/IosShell.xcworkspace"
+# The app name in app.json is also the Xcode scheme and project name.
+SCHEME="$(node -p "require('./app.json').expo.name")"
+WORKSPACE="ios/$SCHEME.xcworkspace"
 DERIVED_DATA="ios/build"
 APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphoneos/$SCHEME.app"
 
-bash scripts/build/ensure-prebuild.sh
+bash scripts/iphone/lib/ensure-native.sh
 
 # Record this build's details for the Build tab in the app.
-node scripts/build/write-build-info.mjs Debug
+node scripts/iphone/lib/write-build-info.mjs Debug
 
 # Physical iPhones that are paired and reachable.
 DEVICE_IDS=$(xcrun devicectl list devices 2>/dev/null \

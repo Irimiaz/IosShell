@@ -11,6 +11,7 @@
     "expo-clipboard": "~58.0.4",
     "expo-constants": "~58.0.16",
     "expo-file-system": "~58.0.14",
+    "expo-haptics": "~58.0.8",
     "expo-image-picker": "~58.0.10",
     "expo-local-authentication": "~58.0.3",
     "expo-media-library": "~58.0.14",
@@ -42,18 +43,10 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
+    "setup": "node scripts/init.mjs",
     "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "ios:tunnel": "expo start -- --tunnel",
-    "prebuild": "bash scripts/build/prebuild.sh",
-    "ios:device": "bash scripts/build/ensure-prebuild.sh && expo run:ios --device",
-    "build": "bash scripts/build/install-no-launch.sh",
-    "ios:ipa": "bash scripts/build/build-unsigned-ipa.sh",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "iphone": "node scripts/iphone/menu.mjs",
+    "check": "tsc --noEmit && eslint ."
   },
   "private": true
 }
