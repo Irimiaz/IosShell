@@ -67,6 +67,12 @@ const tasks = [
     when: 'Deletes src/demo/ and its links in the menu and tabs. The libraries stay. Asks you to confirm first.',
     command: ['node', ['scripts/demo/remove-demo.mjs']],
   },
+  {
+    key: '10',
+    title: 'Clean build, install without opening',
+    when: 'Cold start. Clears all caches, recreates ios/, then builds and installs on the phone without opening it. Slower. Use it when nothing else works.',
+    command: ['bash', ['scripts/iphone/clean-build.sh']],
+  },
 ];
 
 // One reader for the whole menu. It is paused while a task runs, so the task
