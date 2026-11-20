@@ -50,7 +50,7 @@ const BINARY_EXTENSIONS = new Set([
   '.otf',
 ]);
 
-const TOTAL_QUESTIONS = 6;
+const TOTAL_QUESTIONS = 5;
 const oldName = readJson('app.json').expo.name;
 
 // One reader for the whole session. Reads a line at a time, so it works the
@@ -139,59 +139,6 @@ const checkTeamId = (v) =>
     : 'A team ID is 10 capital letters or digits. Example: Z23JXMNT76';
 const checkText = (v) =>
   /[\r\n"']/.test(v) ? 'Avoid quotes and line breaks.' : null;
-const checkTimeZone = (v) => {
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone: v });
-    return null;
-  } catch {
-    return 'Not a time zone name. Example: Europe/Bucharest';
-  }
-};
-
-// Shows a short list of time zones. Enter takes the first one (this Mac's).
-async function askTimeZone(step) {
-  const macZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const choices = [
-    ...new Set([
-      macZone,
-      'Europe/Bucharest',
-      'Europe/London',
-      'America/New_York',
-      'America/Los_Angeles',
-      'Asia/Tokyo',
-    ]),
-  ].slice(0, 5);
-  const other = choices.length + 1;
-
-  question(step, 'Phone time zone', [
-    "The Info tab shows the build time in this zone. Use your iPhone's zone,",
-    'found in Settings > General > Date & Time.',
-  ]);
-  choices.forEach((zone, index) => {
-    const label = zone === macZone ? `${zone} (this Mac)` : zone;
-    console.log(`      ${index + 1}  ${label}`);
-  });
-  console.log(`      ${other}  Other: type a name`);
-
-  for (;;) {
-    const answer = await readLine(`  Type 1-${other}, Enter = 1 > `);
-    if (!answer) return choices[0];
-    const number = Number(answer);
-    if (Number.isInteger(number) && number >= 1 && number <= choices.length) {
-      return choices[number - 1];
-    }
-    if (number === other) {
-      for (;;) {
-        const typed = await readLine('  Time zone name > ');
-        const problem = checkTimeZone(typed);
-        if (!problem) return typed;
-        console.log(`      ${problem}`);
-      }
-    }
-    console.log(`      Type a number from 1 to ${other}.`);
-  }
-}
-
 console.log('Setup: answer each question. Type a value and press Enter.');
 
 const name = await ask(1, 'App name', {
@@ -211,11 +158,10 @@ const bundleId = await ask(2, 'iOS bundle ID', {
 const teamId = await ask(3, 'Apple team ID', {
   notes: [
     'The 10-character code of your signing team, e.g. Z23JXMNT76.',
-    'Skip it to let Xcode choose. To find it, paste this in another terminal',
+    'To find it, paste this in another terminal',
     'and look for OU=... in the output (the code after OU= is the team ID):',
     String.raw`security find-certificate -a -c "Apple Development" -p | awk 'BEGIN{c=""} /BEGIN CERTIFICATE/{c=""} {c=c $0 "\n"} /END CERTIFICATE/{printf "%s", c | "openssl x509 -noout -subject"; close("openssl x509 -noout -subject")}'`,
   ],
-  optional: true,
   check: checkTeamId,
 });
 const username = await ask(4, 'Username', {
@@ -223,8 +169,7 @@ const username = await ask(4, 'Username', {
   optional: true,
   check: checkText,
 });
-const timeZone = await askTimeZone(5);
-const keepDemo = await yesNo(6, 'Keep the demo screens?', true, [
+const keepDemo = await yesNo(5, 'Keep the demo screens?', true, [
   'Example screens for each phone feature, with buttons to try.',
   'Remove them later with menu option 9 in: npm run iphone',
 ]);
@@ -233,9 +178,8 @@ console.log('\nThese values will be used:');
 const summary = [
   ['App name', name],
   ['iOS bundle ID', bundleId],
-  ['Apple team ID', teamId || '(Xcode chooses)'],
+  ['Apple team ID', teamId],
   ['Username', username || '(not set)'],
-  ['Phone time zone', timeZone],
   ['Demo screens', keepDemo ? 'kept' : 'removed'],
 ];
 for (const [label, value] of summary) {
@@ -279,7 +223,6 @@ writeText(
     `IOS_BUNDLE_ID=${bundleId}`,
     `APPLE_TEAM_ID=${teamId}`,
     `username=${username}`,
-    `APP_TIMEZONE=${timeZone}`,
     '',
   ].join('\n'),
 );
@@ -301,7 +244,7 @@ writeJson(BUILD_INFO, {
   gitDirty: 'not built yet',
   configuration: 'not built yet',
   builtAtIso: 'not built yet',
-  timeZone: timeZone,
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   builtAtLocal: 'not built yet',
   nodeVersion: process.version,
 });

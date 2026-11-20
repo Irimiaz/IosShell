@@ -25,33 +25,11 @@ function git(command) {
   }
 }
 
-// The time zone for the "Built at" line. Set APP_TIMEZONE in .env. If it is
-// missing or not a valid time zone name, this Mac's time zone is used.
-function readTimeZone() {
-  let value = process.env.APP_TIMEZONE;
-  try {
-    const line = readFileSync(join(root, '.env'), 'utf8')
-      .split('\n')
-      .find((item) => item.startsWith('APP_TIMEZONE='));
-    if (!value && line) value = line.slice('APP_TIMEZONE='.length).trim();
-  } catch {
-    // No .env file: use the default below.
-  }
-  if (value) {
-    try {
-      new Intl.DateTimeFormat('en-US', { timeZone: value });
-      return value;
-    } catch {
-      // Not a valid time zone name: use the default below.
-    }
-  }
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const app = JSON.parse(readFileSync(join(root, 'app.json'), 'utf8')).expo;
 const now = new Date();
-const timeZone = readTimeZone();
+// The time zone of this Mac. The build time is shown in it.
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const info = {
   appName: app.name,

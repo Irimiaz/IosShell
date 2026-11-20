@@ -48,12 +48,11 @@ Do this once per Mac, and once per iPhone.
 
 `.env` sits in the project root. It is gitignored, so the values stay on your Mac. [`.env.example`](../.env.example) lists every variable.
 
-| Variable        | Required | What it is                                        | Used for                              |
-| --------------- | -------- | ------------------------------------------------- | ------------------------------------- |
-| `IOS_BUNDLE_ID` | yes      | The app's bundle identifier                       | `PRODUCT_BUNDLE_IDENTIFIER` in `ios/` |
-| `APPLE_TEAM_ID` | no       | The team ID of the Apple ID that signs the app    | `DEVELOPMENT_TEAM` in `ios/`          |
-| `username`      | no       | Any text. Shown on the Info tab                   | `Constants.expoConfig.extra.username` |
-| `APP_TIMEZONE`  | no       | Time zone for the "Built at" line on the Info tab | The build time display                |
+| Variable        | Required | What it is                                     | Used for                              |
+| --------------- | -------- | ---------------------------------------------- | ------------------------------------- |
+| `IOS_BUNDLE_ID` | yes      | The app's bundle identifier                    | `PRODUCT_BUNDLE_IDENTIFIER` in `ios/` |
+| `APPLE_TEAM_ID` | yes      | The team ID of the Apple ID that signs the app | `DEVELOPMENT_TEAM` in `ios/`          |
+| `username`      | no       | Any text. Shown on the Info tab                | `Constants.expoConfig.extra.username` |
 
 After you change a value, run `npm run iphone` (option 2). It regenerates `ios/` when `.env` changed. `npm run setup` writes these values for you.
 
@@ -67,7 +66,7 @@ You choose this value. Apple does not hand it out, and nothing has to be looked 
 
 ### APPLE_TEAM_ID
 
-Leave it empty to let Xcode choose the team. Set it when you have several Apple IDs in Xcode and want a fixed one.
+It is required. Xcode needs a team to sign the app, and this value keeps the same team when the iOS project is rebuilt.
 
 The team ID is written as `OU=` in the certificate that Xcode creates for each Apple ID. Your Mac needs that certificate first:
 
@@ -86,10 +85,6 @@ If the command prints nothing, step 2 has not run yet. Paid Apple Developer acco
 ### username
 
 Any text. Nothing to look up, and it does not have to match anything at Apple. The Info tab shows it. If it is empty, the Info tab shows "not set" and the app still starts.
-
-### APP_TIMEZONE
-
-The time zone for the "Built at" line on the Info tab, for example `Europe/Bucharest` or `America/New_York`. Set it to your iPhone's time zone (Settings > General > Date & Time). Leave it empty to use this Mac's time zone, which is usually the same. Notifications are scheduled on the phone, so they use the phone's own time zone, not this setting.
 
 ### Check the values reached the Xcode project
 
