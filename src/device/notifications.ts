@@ -1,6 +1,4 @@
 import * as Notifications from 'expo-notifications';
-import { AndroidImportance } from 'expo-notifications';
-import { Platform } from 'react-native';
 
 // Local notifications: shown by this phone, no phone number or server needed.
 // A backend-triggered push later needs a push token registered from the app.
@@ -15,17 +13,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-let channelReady: Promise<unknown> | undefined;
-
-// Android needs a channel before it can show notifications. iOS ignores this.
-function ensureChannel() {
-  if (Platform.OS !== 'android') return;
-  channelReady ??= Notifications.setNotificationChannelAsync('default', {
-    name: 'Default',
-    importance: AndroidImportance.DEFAULT,
-  });
-}
 
 export type NotifyResult =
   { ok: true; id: string } | { ok: false; reason: string };
@@ -46,7 +33,6 @@ export async function sendNotificationNow(
   if (!(await requestNotificationAccess())) {
     return { ok: false, reason: 'Notifications are not allowed for this app.' };
   }
-  ensureChannel();
   try {
     const id = await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: true },
@@ -70,7 +56,6 @@ export async function scheduleNotification(
   if (!(await requestNotificationAccess())) {
     return { ok: false, reason: 'Notifications are not allowed for this app.' };
   }
-  ensureChannel();
   try {
     const id = await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: true },

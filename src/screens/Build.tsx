@@ -19,7 +19,10 @@ export function Build() {
           <Row label="Build number" value={buildInfo.buildNumber} />
           <Row label="Package version" value={buildInfo.packageVersion} />
           <Row label="Configuration" value={buildInfo.configuration} />
-          <Row label="Built at (Romania)" value={buildInfo.builtAtRomania} />
+          <Row
+            label={`Built at (${buildInfo.timeZone})`}
+            value={buildInfo.builtAtLocal}
+          />
           <Row label="Built at (UTC)" value={buildInfo.builtAtIso} />
         </Group>
 

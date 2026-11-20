@@ -168,6 +168,15 @@ const teamId = await ask('Apple team ID', {
     'Where to find it: docs/IPHONE.md#apple_team_id.',
   ],
 });
+const checkTimeZone = (v) => {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: v });
+    return null;
+  } catch {
+    return 'Use a time zone name such as Europe/Bucharest.';
+  }
+};
+
 const username = await ask('Username, shown on the Info tab', {
   optional: true,
   check: checkText,
@@ -177,18 +186,30 @@ const username = await ask('Username, shown on the Info tab', {
     'anything at Apple.',
   ],
 });
+const timeZone = await ask("Your phone's time zone", {
+  fallback: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  check: checkTimeZone,
+  help: [
+    'What: the time zone of your iPhone. The Info tab shows the build time in it.',
+    "Press Enter to use this Mac's time zone, which is the same as the phone's when",
+    'both are in the same place. Otherwise type a name like Europe/Bucharest.',
+    "Your phone's time zone is in Settings > General > Date & Time.",
+  ],
+});
 const keepDemo = await yesNo('Keep the demo screens?', true, [
   'What: the demo screens in src/demo/ show each device feature with buttons',
   'to try. Yes: keep them as examples. No: delete them, leaving only the',
   'Dashboard and Info screens.',
 ]);
 const freshGit = await yesNo(
-  "Start a fresh git history (removes this repo's history and remote)?",
+  "Start with a clean git history (deletes this repo's history)?",
   true,
   [
-    "What: git keeps this template's history, and a link to its repo (origin).",
-    'Yes: delete the history and the link, and start an empty repo for your app.',
-    'No: keep both. You can remove the link later with: git remote remove origin',
+    'What: git records every commit. This folder has its existing history.',
+    'Yes: delete that history and the link to GitHub, and start',
+    'a new, empty history for your app. This cannot be undone.',
+    'No: keep the history and the link. You can remove the link later with:',
+    'git remote remove origin',
   ],
 );
 
@@ -197,6 +218,7 @@ console.log(`  App name:         ${name}`);
 console.log(`  iOS bundle ID:    ${bundleId}`);
 console.log(`  Team ID:          ${teamId || '(Xcode chooses)'}`);
 console.log(`  Username:         ${username || '(not set)'}`);
+console.log(`  Phone time zone: ${timeZone}`);
 console.log(`  Demo screens:     ${keepDemo ? 'kept' : 'removed'}`);
 console.log(`  Git history:      ${freshGit ? 'fresh' : 'kept'}`);
 console.log('  .env will be overwritten.\n');
@@ -237,6 +259,7 @@ writeText(
     `IOS_BUNDLE_ID=${bundleId}`,
     `APPLE_TEAM_ID=${teamId}`,
     `username=${username}`,
+    `APP_TIMEZONE=${timeZone}`,
     '',
   ].join('\n'),
 );
@@ -258,7 +281,8 @@ writeJson(BUILD_INFO, {
   gitDirty: 'not built yet',
   configuration: 'not built yet',
   builtAtIso: 'not built yet',
-  builtAtRomania: 'not built yet',
+  timeZone: timeZone,
+  builtAtLocal: 'not built yet',
   nodeVersion: process.version,
 });
 

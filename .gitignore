@@ -190,7 +190,6 @@ example
 
 # generated native folders
 /ios
-/android
 
 # written by the build scripts and by `npm run setup`
 src/config/build-info.json
