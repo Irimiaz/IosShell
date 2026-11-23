@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { ActivityIndicator, Alert, View } from 'react-native';
 
+import { useLoading } from '../loading/LoadingProvider';
 import { BaseScreen } from '../screens/BaseScreen';
 import { ActionButton, Card, Group, Heading, Row } from './ui';
 
 const WAIT_MS = 2000;
+const OVERLAY_MS = 3000;
 
 // Pull down on this screen to refresh it. The time below changes each time.
 export function AlertsDemo() {
   const [working, setWorking] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState(() => new Date());
+  const { withLoading } = useLoading();
 
   // Runs when the user pulls down. The spinner stops when this finishes.
   const refresh = () =>
@@ -80,6 +83,25 @@ export function AlertsDemo() {
               </View>
             )}
           </Card>
+          <Card
+            icon="layers"
+            title="Full-screen loading"
+            description={`Covers the whole screen with the loading overlay for ${OVERLAY_MS / 1000} seconds. The screen can't be used until it ends.`}
+            action={
+              <ActionButton
+                title="Show overlay"
+                variant="outline"
+                onPress={() =>
+                  withLoading(
+                    () =>
+                      new Promise<void>((resolve) =>
+                        setTimeout(resolve, OVERLAY_MS),
+                      ),
+                  )
+                }
+              />
+            }
+          />
         </Group>
 
         <Group title="Pull to refresh">
