@@ -45,6 +45,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       bundleIdentifier,
       ...(appleTeamId ? { appleTeamId } : {}),
+      // Without these keys iOS never asks for Local Network access, so the
+      // installed app cannot reach the Metro dev server on the Mac.
+      infoPlist: {
+        NSLocalNetworkUsageDescription:
+          'Loads the app code from the development server on your Mac.',
+        NSBonjourServices: ['_http._tcp'],
+      },
     },
     extra: {
       username: process.env.username,
